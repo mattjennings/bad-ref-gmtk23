@@ -80,7 +80,7 @@ export class TeamPlayer extends ex.Actor {
     this.setAnimation('Idle')
 
     Object.assign(this, positionTemplates[teamPosition])
-    this.stamina = this.maxStamina
+    this.stamina = Math.random() * this.maxStamina
     this.staminaRegenRate = 0.05 * (this.moveSpeed / 100)
     this.staminaDepletionRate = 0.08 * (this.moveSpeed / 100)
   }
