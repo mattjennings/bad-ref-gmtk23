@@ -1,9 +1,15 @@
-import { Engine } from 'excalibur'
+import { Animation, Engine } from 'excalibur'
+import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
 
 type Team = 'home' | 'away'
 
 const random = new ex.Random()
+
+const sprites = {
+  home: assets.ase_playerRed,
+  away: assets.ase_playerBlue,
+}
 export class TeamPlayer extends ex.Actor {
   declare scene: MatchScene
   team: Team
@@ -28,10 +34,13 @@ export class TeamPlayer extends ex.Actor {
       ...args,
       width: 16,
       height: 32,
-      color: team === 'home' ? ex.Color.Blue : ex.Color.Red,
+      // color: team === 'home' ? ex.Color.Blue : ex.Color.Red,
       collisionType: ex.CollisionType.Passive,
     })
     this.team = team
+    const sprite = this.team === 'home' ? sprites.home : sprites.away
+
+    this.graphics.use(sprite.getAnimation('Run')!)
   }
 
   onInitialize(_engine: Engine): void {}
@@ -74,6 +83,8 @@ export class TeamPlayer extends ex.Actor {
     } else if (this.stamina >= this.maxStamina) {
       this.stamina = this.maxStamina
     }
+
+    this.currentGraphic().flipHorizontal = this.vel.x < 0
   }
 
   kickBall() {
@@ -104,5 +115,9 @@ export class TeamPlayer extends ex.Actor {
     return this.team === 'home'
       ? ex.vec(this.scene.field.width - 50, this.scene.field.height / 2)
       : ex.vec(50, this.scene.field.height / 2)
+  }
+
+  currentGraphic() {
+    return this.graphics.current[0].graphic
   }
 }
