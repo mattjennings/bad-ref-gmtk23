@@ -1,10 +1,13 @@
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
-// I opted for prefixing all assets with type_name rather than
-// nesting but I'm find to nest them too. i.e assets.images.level1 etc
+
 export const assets = {
   img_field: new ex.ImageSource('maps/field.png'),
   img_ball: new ex.ImageSource('sprites/ball.png'),
   img_shadow: new ex.ImageSource('sprites/players/player_shadow.png'),
+  img_netLeftBack: new ex.ImageSource('sprites/net/net_left_back.png'),
+  img_netLeftFront: new ex.ImageSource('sprites/net/net_left_front.png'),
+  img_netRightBack: new ex.ImageSource('sprites/net/net_right_back.png'),
+  img_netRightFront: new ex.ImageSource('sprites/net/net_right_back.png'),
 
   ase_character1Red: new AsepriteResource('sprites/players/C1_RED.json'),
   ase_character2Red: new AsepriteResource('sprites/players/C2_RED.json'),

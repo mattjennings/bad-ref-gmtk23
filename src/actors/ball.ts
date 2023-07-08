@@ -14,6 +14,8 @@ export class Ball extends ex.Actor {
   constructor(args: ActorArgs) {
     super({
       ...args,
+      name: 'ball',
+      anchor: ex.vec(0.5, 0.5),
       radius: 8,
       collisionType: ex.CollisionType.Active,
     })
@@ -39,14 +41,19 @@ export class Ball extends ex.Actor {
     _engine.input.keyboard.on('press', (ev) => {
       const power = 500
       if (ev.key === ex.Input.Keys.Left) {
-        this.kick(ex.Vector.Left.scale(power))
+        this.kick(ex.Vector.Left.scale(power), true)
       } else if (ev.key === ex.Input.Keys.Right) {
-        this.kick(ex.Vector.Right.scale(power))
+        this.kick(ex.Vector.Right.scale(power), true)
       } else if (ev.key === ex.Input.Keys.Up) {
-        this.kick(ex.Vector.Up.scale(power))
+        this.kick(ex.Vector.Up.scale(power), true)
       } else if (ev.key === ex.Input.Keys.Down) {
-        this.kick(ex.Vector.Down.scale(power))
+        this.kick(ex.Vector.Down.scale(power), true)
       }
+    })
+
+    _engine.input.pointers.on('down', (ev) => {
+      this.pos = ev.worldPos
+      console.log('moved to', this.pos)
     })
   }
 
@@ -66,6 +73,7 @@ export class Ball extends ex.Actor {
 
   update(engine: Engine, delta: number): void {
     super.update(engine, delta)
+    // console.log(this.pos)
 
     this.vel = this.vel.scale(1 - this.friction)
 
@@ -75,13 +83,6 @@ export class Ball extends ex.Actor {
 
     if (Math.abs(this.vel.y) > this.maxVelocity) {
       this.vel.y = this.maxVelocity * Math.sign(this.vel.y)
-    }
-
-    this.scale.setTo(1 - this.z / 100, 1 - this.z / 100)
-    if (this.z > 0) {
-      this.z -= 0.1 * delta
-    } else {
-      this.z = 0
     }
 
     const distance = this.pos.distance(ex.vec(0, 0)) / 10

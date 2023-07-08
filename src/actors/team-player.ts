@@ -65,6 +65,7 @@ export class TeamPlayer extends ex.Actor {
   }) {
     super({
       ...args,
+      name: `player_${team}_${teamPosition}`,
       width: 16,
       height: 32,
       collisionType: ex.CollisionType.Passive,
@@ -196,7 +197,10 @@ export class TeamPlayer extends ex.Actor {
         ? 0.85
         : 1
 
-      moveTo(ball.pos, this.moveSpeed * speedFactor)
+      moveTo(
+        ex.vec(ball.pos.x, ball.pos.y - ball.height / 2),
+        this.moveSpeed * speedFactor
+      )
       if (ballDistance < 200) {
         this.sprint()
       }
@@ -233,7 +237,7 @@ export class TeamPlayer extends ex.Actor {
         this.clearBall()
       } else {
         this.kickBall(
-          this.getNetPosition(),
+          this.getGoalPosition(),
           this.isSprinting ? this.power * 1.5 : this.power
         )
       }
@@ -294,7 +298,7 @@ export class TeamPlayer extends ex.Actor {
   clearBall() {
     this.kickBall(
       ex.vec(
-        this.getNetPosition().x,
+        this.getGoalPosition().x,
         random.pickOne([0, this.scene.field.height])
       )
     )
@@ -306,10 +310,15 @@ export class TeamPlayer extends ex.Actor {
     }
   }
 
-  getNetPosition() {
-    return this.team === 'home'
-      ? ex.vec(this.scene.field.width - 50, this.scene.field.height / 2)
-      : ex.vec(50, this.scene.field.height / 2)
+  getGoalPosition() {
+    const net = this.team === 'home' ? this.scene.away.net : this.scene.home.net
+
+    return ex.vec(
+      net.team === 'home'
+        ? net.pos.x - net.width / 4
+        : net.pos.x + net.width / 4,
+      net.pos.y - net.height / 4
+    )
   }
 
   /**

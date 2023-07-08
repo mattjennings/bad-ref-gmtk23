@@ -1,13 +1,22 @@
 import { assets } from 'src/assets'
 import { Ball } from 'src/actors/ball'
 import { TeamPlayer } from 'src/actors/team-player'
-import { Actor } from 'excalibur'
+import { Actor, Engine } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
+import { TeamGoalie } from 'src/actors/team-goalie'
+import { Net } from 'src/actors/net'
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
-  homeTeam: TeamPlayer[]
-  awayTeam: TeamPlayer[]
+  home: {
+    players: TeamPlayer[]
+    // goalie: TeamGoalie
+    net: Net
+  }
+  away: {
+    players: TeamPlayer[]
+    net: Net
+  }
 
   field: Actor
 
@@ -57,7 +66,10 @@ export default class MatchScene extends ex.Scene {
         this.field.height
       ),
     }
-    this.ball = new Ball({ x: this.field.width / 2, y: this.field.height / 2 })
+    this.ball = new Ball({
+      x: this.field.width / 2,
+      y: this.field.height / 2 - 32,
+    })
 
     // create world bounds
     const fieldHeight = this.field.height
@@ -90,44 +102,56 @@ export default class MatchScene extends ex.Scene {
     engine.add(this.ball)
 
     // add team
-    this.homeTeam = [
-      new TeamPlayer({
-        team: 'home',
-        teamPosition: 'forward',
-      }),
-      new TeamPlayer({
-        team: 'home',
-        teamPosition: 'midfielder',
-      }),
-      new TeamPlayer({
-        team: 'home',
-        teamPosition: 'defender',
-      }),
-      new TeamPlayer({
-        team: 'home',
-        teamPosition: 'defender',
-      }),
-    ]
+    this.home = {
+      net: new Net({ team: 'home' }),
+      players: [
+        new TeamPlayer({
+          team: 'home',
+          teamPosition: 'forward',
+        }),
+        new TeamPlayer({
+          team: 'home',
+          teamPosition: 'midfielder',
+        }),
+        new TeamPlayer({
+          team: 'home',
+          teamPosition: 'defender',
+        }),
+        new TeamPlayer({
+          team: 'home',
+          teamPosition: 'defender',
+        }),
+      ],
+    }
 
-    this.awayTeam = [
-      new TeamPlayer({
-        team: 'away',
-        teamPosition: 'forward',
-      }),
-      new TeamPlayer({
-        team: 'away',
-        teamPosition: 'midfielder',
-      }),
-      new TeamPlayer({
-        team: 'away',
-        teamPosition: 'defender',
-      }),
-      new TeamPlayer({
-        team: 'away',
-        teamPosition: 'defender',
-      }),
-    ]
-    ;[...this.homeTeam, ...this.awayTeam].forEach((player, i) => {
+    this.away = {
+      net: new Net({ team: 'away' }),
+      players: [
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'forward',
+        }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'midfielder',
+        }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
+      ],
+    }
+
+    Array.from([
+      ...this.home.players,
+      this.home.net,
+      ...this.away.players,
+      this.away.net,
+    ]).forEach((player, i) => {
       this.engine.add(player)
     })
 
@@ -136,5 +160,23 @@ export default class MatchScene extends ex.Scene {
     this.camera.strategy.limitCameraBounds(
       new ex.BoundingBox(0, 0, fieldWidth, fieldHeight)
     )
+  }
+
+  onPreUpdate(_engine: Engine, _delta: number): void {
+    // ysort all actors
+    const sorted = [...this.entities].sort((a, b) => {
+      if (a instanceof Actor && b instanceof Actor) {
+        return a.pos.y - b.pos.y
+      }
+
+      return 0
+    })
+
+    // set zindex in order
+    sorted.forEach((actor, i) => {
+      if (actor instanceof Actor) {
+        actor.z = i
+      }
+    })
   }
 }
