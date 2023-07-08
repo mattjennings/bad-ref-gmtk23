@@ -1,10 +1,9 @@
 // I opted for prefixing all assets with type_name rather than
 // nesting but I'm find to nest them too. i.e assets.images.level1 etc
 export const assets = {
-  img_level1: new ex.ImageSource('maps/level1.png'),
-  img_player: new ex.ImageSource('sprites/player.png'),
-
-  // snd_jump: ... etc
+  img_field: new ex.ImageSource('maps/field.png'),
+  img_ball: new ex.ImageSource('sprites/ball.png'),
+  img_ballShadow: new ex.ImageSource('sprites/ball_shadow.png'),
 }
 
 class DevLoader extends ex.Loader {
