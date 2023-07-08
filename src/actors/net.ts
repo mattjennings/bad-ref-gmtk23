@@ -28,7 +28,7 @@ export class Net extends ex.Actor {
     const anchorPxOffset = 144 * (1 - this.anchor.y)
 
     // set position of net
-    const x = this.team === 'home' ? 3 * 16 : 53 * 16
+    const x = this.team === 'home' ? 0 * 16 : 50 * 16
     const y = Math.round(11 * 16 + anchorPxOffset)
     this.pos = ex.vec(x, y)
 
