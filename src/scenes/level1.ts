@@ -1,5 +1,4 @@
 import { assets } from 'src/assets'
-import { Player } from 'src/actors/player'
 import { Ball } from 'src/actors/ball'
 
 export default class Level1 extends ex.Scene {
