@@ -19,3 +19,5 @@ game.start(loader).then(() => {
 ex.Physics.checkForFastBodies = true
 ex.Physics.useRealisticPhysics()
 // ex.Physics.acc = ex.vec(0, 300)
+
+globalThis.debug = true

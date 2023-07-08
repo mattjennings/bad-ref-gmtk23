@@ -49,8 +49,12 @@ export class Ball extends ex.Actor {
     })
   }
 
-  kick(vel: ex.Vector) {
-    if (this.kickThrottle === 0) {
+  /**
+   * Kicks the ball. There is a throttle to prevent kicking too often,
+   * but it can be overridden by passing force=true
+   */
+  kick(vel: ex.Vector, force = false) {
+    if (force || this.kickThrottle === 0) {
       this.kickThrottle = this.kickThrottleMax
       // scale down y velocity to account for perspective
       vel.y *= 0.6

@@ -11,9 +11,12 @@ export default class MatchScene extends ex.Scene {
 
   field: Actor
 
-  onInitialize(engine: ex.Engine): void {
-    this.ball = new Ball({ x: 8 * 16, y: 1 * 16 })
+  zones: Record<
+    'left' | 'mid' | 'right' | 'leftCrease' | 'rightCrease',
+    ex.BoundingBox
+  >
 
+  onInitialize(engine: ex.Engine): void {
     // add field
     const { width, height } = assets.img_field.toSprite()
     this.field = new Sprite({
@@ -26,6 +29,35 @@ export default class MatchScene extends ex.Scene {
       height,
     })
     engine.add(this.field)
+
+    this.zones = {
+      left: new ex.BoundingBox(0, 0, this.field.width / 3, this.field.height),
+      leftCrease: new ex.BoundingBox(
+        0,
+        0,
+        this.field.width / 8,
+        this.field.height
+      ),
+      mid: new ex.BoundingBox(
+        this.field.width / 3,
+        0,
+        (this.field.width * 2) / 3,
+        this.field.height
+      ),
+      right: new ex.BoundingBox(
+        (this.field.width * 2) / 3,
+        0,
+        this.field.width,
+        this.field.height
+      ),
+      rightCrease: new ex.BoundingBox(
+        (this.field.width * 7) / 8,
+        0,
+        this.field.width,
+        this.field.height
+      ),
+    }
+    this.ball = new Ball({ x: this.field.width / 2, y: this.field.height / 2 })
 
     // create world bounds
     const fieldHeight = this.field.height
@@ -61,26 +93,38 @@ export default class MatchScene extends ex.Scene {
     this.homeTeam = [
       new TeamPlayer({
         team: 'home',
-        x: 6 * 16,
-        y: 5 * 16,
+        teamPosition: 'forward',
       }),
       new TeamPlayer({
         team: 'home',
-        x: 6 * 16,
-        y: 7 * 16,
+        teamPosition: 'midfielder',
+      }),
+      new TeamPlayer({
+        team: 'home',
+        teamPosition: 'defender',
+      }),
+      new TeamPlayer({
+        team: 'home',
+        teamPosition: 'defender',
       }),
     ]
 
     this.awayTeam = [
       new TeamPlayer({
         team: 'away',
-        x: 8 * 16,
-        y: 5 * 16,
+        teamPosition: 'forward',
       }),
       new TeamPlayer({
         team: 'away',
-        x: 8 * 16,
-        y: 7 * 16,
+        teamPosition: 'midfielder',
+      }),
+      new TeamPlayer({
+        team: 'away',
+        teamPosition: 'defender',
+      }),
+      new TeamPlayer({
+        team: 'away',
+        teamPosition: 'defender',
       }),
     ]
     ;[...this.homeTeam, ...this.awayTeam].forEach((player, i) => {
