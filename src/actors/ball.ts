@@ -26,12 +26,13 @@ export class Ball extends ex.Actor {
   onInitialize(_engine: Engine): void {
     this.graphics.use(assets.img_ball.toSprite())
 
-    const shadowSprite = assets.img_ballShadow.toSprite()
+    const shadowSprite = assets.img_shadow.toSprite()
+    shadowSprite.scale = ex.vec(0.75, 0.75)
 
     this.graphics.onPreDraw = (ctx) => {
       // prevent sprite being drawn at same rotation as ball
       ctx.rotate(-this.rotation)
-      shadowSprite.draw(ctx, -8, -6)
+      shadowSprite.draw(ctx, -12, -16)
       ctx.rotate(this.rotation)
     }
 

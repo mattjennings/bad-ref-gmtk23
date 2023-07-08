@@ -4,10 +4,12 @@ import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
 export const assets = {
   img_field: new ex.ImageSource('maps/field.png'),
   img_ball: new ex.ImageSource('sprites/ball.png'),
-  img_ballShadow: new ex.ImageSource('sprites/ball_shadow.png'),
+  img_shadow: new ex.ImageSource('sprites/players/player_shadow.png'),
 
-  ase_playerRed: new AsepriteResource('sprites/players/C1_RED.json'),
-  ase_playerBlue: new AsepriteResource('sprites/players/C1_BLUE.json'),
+  ase_character1Red: new AsepriteResource('sprites/players/C1_RED.json'),
+  ase_character2Red: new AsepriteResource('sprites/players/C2_RED.json'),
+  ase_character1Blue: new AsepriteResource('sprites/players/C1_BLUE.json'),
+  ase_character2Blue: new AsepriteResource('sprites/players/C2_BLUE.json'),
 }
 
 class DevLoader extends ex.Loader {

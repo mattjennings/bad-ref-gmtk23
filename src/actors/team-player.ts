@@ -9,8 +9,9 @@ type TeamPosition = 'defender' | 'midfielder' | 'forward'
 const random = new ex.Random()
 
 const sprites = {
-  home: assets.ase_playerRed,
-  away: assets.ase_playerBlue,
+  home: [assets.ase_character1Blue, assets.ase_character2Blue],
+  away: [assets.ase_character1Red, assets.ase_character2Red],
+  shadow: assets.img_shadow.toSprite(),
 }
 
 const positionTemplates = {
@@ -72,7 +73,10 @@ export class TeamPlayer extends ex.Actor {
     this.teamPosition = teamPosition
     this.debug = debug ?? false
 
-    this.sprite = this.team === 'home' ? sprites.home : sprites.away
+    this.sprite =
+      this.team === 'home'
+        ? random.pickOne(sprites.home)
+        : random.pickOne(sprites.away)
     this.animations = {
       Idle: this.sprite.getAnimation('Idle')!.clone(),
       Run: this.sprite.getAnimation('Run')!.clone(),
@@ -133,14 +137,19 @@ export class TeamPlayer extends ex.Actor {
       }
     })
 
-    this.addChild(
-      new ex.Label({
-        text: this.teamPosition,
-        color: ex.Color.White,
-        x: -20,
-        y: 20,
-      })
-    )
+    // draw shadow
+    this.graphics.onPreDraw = (ctx) => {
+      sprites.shadow.draw(ctx, -16, -16)
+    }
+
+    // this.addChild(
+    //   new ex.Label({
+    //     text: this.teamPosition,
+    //     color: ex.Color.White,
+    //     x: -20,
+    //     y: 20,
+    //   })
+    // )
   }
 
   update(engine: Engine, delta: number): void {
