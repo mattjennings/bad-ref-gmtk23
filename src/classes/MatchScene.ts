@@ -67,8 +67,8 @@ export default class MatchScene extends ex.Scene {
       ),
     }
     this.ball = new Ball({
-      x: this.field.width / 2,
-      y: this.field.height / 2 - 32,
+      x: Math.round(this.field.width / 2),
+      y: Math.round(this.field.height / 2 - 32),
     })
 
     // create world bounds
