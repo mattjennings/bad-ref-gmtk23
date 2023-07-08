@@ -5,6 +5,10 @@ export class Ball extends ex.Actor {
   gravity = 0.1
   maxVelocity = 500
 
+  // can only be kicked once per this many milliseconds
+  kickThrottleMax = 500
+  kickThrottle = 0
+
   friction = 0.05
 
   constructor(args: ActorArgs) {
@@ -45,11 +49,18 @@ export class Ball extends ex.Actor {
     })
   }
 
-  kick(vel: ex.Vector) {
-    // scale down y velocity to account for perspective
-    vel.y *= 0.6
+  /**
+   * Kicks the ball. There is a throttle to prevent kicking too often,
+   * but it can be overridden by passing force=true
+   */
+  kick(vel: ex.Vector, force = false) {
+    if (force || this.kickThrottle === 0) {
+      this.kickThrottle = this.kickThrottleMax
+      // scale down y velocity to account for perspective
+      vel.y *= 0.6
 
-    this.vel = this.vel.add(vel)
+      this.vel = this.vel.add(vel)
+    }
   }
 
   update(engine: Engine, delta: number): void {
@@ -72,8 +83,14 @@ export class Ball extends ex.Actor {
       this.z = 0
     }
 
-    const distance = this.pos.distance(ex.vec(0, 0)) / 20
+    const distance = this.pos.distance(ex.vec(0, 0)) / 10
     this.rotation = distance % 360
+
+    this.kickThrottle -= delta
+
+    if (this.kickThrottle < 0) {
+      this.kickThrottle = 0
+    }
   }
 
   onPreUpdate(_engine: Engine, _delta: number): void {
