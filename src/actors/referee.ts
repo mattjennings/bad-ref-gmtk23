@@ -162,9 +162,9 @@ export class Referee extends BasePlayer {
           entity.pos.distance(this.pos) < 30
       ) as BasePlayer[]
 
+      assets.snd_taunt.play()
       if (nearbyPlayers.length) {
         this.suspicion += nearbyPlayers.length * 0.5
-        assets.snd_taunt.play()
         nearbyPlayers.forEach((player) => {
           player.scare(player.pos.sub(this.pos).normalize())
         })
