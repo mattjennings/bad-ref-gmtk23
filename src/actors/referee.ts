@@ -154,7 +154,7 @@ export class Referee extends BasePlayer {
         (entity) =>
           entity !== this &&
           entity instanceof BasePlayer &&
-          entity.pos.distance(this.pos) < 20
+          entity.pos.distance(this.pos) < 30
       ) as BasePlayer[]
 
       if (player) {
