@@ -8,6 +8,7 @@ import { Net } from 'src/actors/net'
 import { Referee } from 'src/actors/referee'
 import { Team } from 'src/actors/base-player'
 import {HudInstructions} from "../hud/hud-instructions";
+import {Scoreboard} from "../hud/scoreboard";
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
@@ -184,6 +185,7 @@ export default class MatchScene extends ex.Scene {
 
     // add HUD
     engine.add(new HudInstructions());
+    engine.add(new Scoreboard());
 
     // setup camera
     this.camera.strategy.lockToActor(this.referee)
