@@ -24,6 +24,7 @@ export class Referee extends BasePlayer {
   constructor() {
     super({
       sprite: assets.ase_referee,
+      collisionType: ex.CollisionType.Active,
     })
 
     this.animations.Punch = this.sprite.getAnimation('Punch')!
@@ -37,6 +38,10 @@ export class Referee extends BasePlayer {
     this.animations.Punch.events.on('loop', () => {
       this.isPunching = false
     })
+
+    this.animations.Whistle.events.on('loop', () => {
+      this.isWhistling = false
+    })
   }
 
   onInitialize(_engine: Engine): void {
@@ -46,6 +51,15 @@ export class Referee extends BasePlayer {
     )
 
     this.directionQueue = new DirectionQueue(controls)
+
+    this.scene.on('reset', () => {
+      this.blowWhistle()
+    })
+
+    this.scene.on('start', () => {
+      this.isPunching = false
+      this.isWhistling = false
+    })
   }
 
   update(engine: Engine, delta: number): void {
@@ -55,7 +69,11 @@ export class Referee extends BasePlayer {
       this.punch()
     }
 
-    if (!this.isPunching) {
+    if (engine.input.keyboard.wasPressed(controls.whistle)) {
+      this.blowWhistle()
+    }
+
+    if (!this.isPunching && !this.isWhistling) {
       const inputs = this.directionQueue.heldDirections
 
       const isLeftHeld = inputs.includes('LEFT')
@@ -97,13 +115,21 @@ export class Referee extends BasePlayer {
     this.setAnimation('Punch')
     this.vel = ex.vec(0, 0)
 
-    const nearbyPlayers = this.scene.entities.filter(
+    const [player] = this.scene.entities.filter(
       (entity) =>
-        entity instanceof TeamPlayer && entity.pos.distance(this.pos) < 20
-    ) as TeamPlayer[]
+        entity !== this &&
+        entity instanceof BasePlayer &&
+        entity.pos.distance(this.pos) < 20
+    ) as BasePlayer[]
 
-    if (nearbyPlayers.length) {
-      nearbyPlayers[0].hit()
+    if (player) {
+      player.hit(player.pos.sub(this.pos).normalize())
     }
+  }
+
+  blowWhistle() {
+    this.isWhistling = true
+    this.setAnimation('Whistle')
+    this.vel = ex.vec(0, 0)
   }
 }

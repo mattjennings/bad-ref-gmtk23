@@ -65,6 +65,7 @@ export class Ball extends ex.Actor {
       // scale down y velocity to account for perspective
       vel.y *= 0.6
 
+      assets.snd_cleanImpact.play()
       this.vel = this.vel.add(vel)
     }
   }

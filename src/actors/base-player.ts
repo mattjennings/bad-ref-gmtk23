@@ -18,17 +18,19 @@ export class BasePlayer extends ex.Actor {
   sprite: AsepriteResource
   animations: Record<string, Animation>
 
+  isPain = false
   isSprinting = false
   debug = false
 
   constructor({ sprite, debug, ...args }: BasePlayerArgs) {
     super({
-      ...args,
       width: 16,
       height: 12,
-      collisionType: ex.CollisionType.Passive,
+      collisionType: ex.CollisionType.Active,
       collider: ex.Shape.Box(16, 12, ex.vec(0.5, 1), ex.vec(0, 12)),
+      ...args,
     })
+    this.body.limitDegreeOfFreedom.push(ex.DegreeOfFreedom.Rotation)
     this.debug = debug ?? false
     this.sprite = sprite
     this.animations = {
@@ -39,6 +41,16 @@ export class BasePlayer extends ex.Actor {
       Slide: this.sprite.getAnimation('Slide')!.clone(),
     }
     this.setAnimation('Idle')
+
+    let isPainCount = 0
+    this.animations.Pain.events.on('loop', (a) => {
+      isPainCount++
+
+      if (isPainCount > 3) {
+        this.isPain = false
+        isPainCount = 0
+      }
+    })
   }
 
   onInitialize(_engine: Engine): void {
@@ -68,5 +80,14 @@ export class BasePlayer extends ex.Actor {
     const angle = pos.sub(this.pos).toAngle()
 
     this.vel = ex.vec(speed * Math.cos(angle), speed * Math.sin(angle))
+  }
+
+  hit(direction: ex.Vector) {
+    this.isPain = true
+    this.isSprinting = false
+    this.setAnimation('Pain')
+    assets.snd_clack.play()
+
+    this.vel = direction.scale(500)
   }
 }
