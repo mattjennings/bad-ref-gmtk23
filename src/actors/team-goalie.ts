@@ -1,6 +1,6 @@
 import { assets } from 'src/assets'
-import { Team } from './team-player'
-import { BasePlayer, BasePlayerArgs } from './base-player'
+
+import { BasePlayer, BasePlayerArgs, Team } from './base-player'
 import { Engine, randomInRange } from 'excalibur'
 import { Net } from './net'
 import { Ball } from './ball'

@@ -1,11 +1,12 @@
 import { assets } from 'src/assets'
 import { Ball } from 'src/actors/ball'
-import { Team, TeamPlayer } from 'src/actors/team-player'
+import { TeamPlayer } from 'src/actors/team-player'
 import { Actor, Engine } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
 import { TeamGoalie } from 'src/actors/team-goalie'
 import { Net } from 'src/actors/net'
 import { Referee } from 'src/actors/referee'
+import { Team } from 'src/actors/base-player'
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
@@ -19,6 +20,8 @@ export default class MatchScene extends ex.Scene {
     goalie: TeamGoalie
     net: Net
   }
+
+  lastPosession: Team = 'home'
   referee: Referee
 
   field: ex.BoundingBox
@@ -188,18 +191,21 @@ export default class MatchScene extends ex.Scene {
   }
 
   onGoal({ team }: { team: Team }) {
-    const posession = team === 'home' ? 'away' : 'home'
-    this.emit('reset', { posession })
+    this.reset()
+  }
+
+  reset() {
+    this.emit('reset', {})
 
     this.ball.actions
       .moveTo(
         ex.vec(
           Math.round(this.field.width / 2) +
             38 +
-            (posession === 'home' ? -16 : 16),
+            (this.lastPosession === 'home' ? -16 : 16),
           Math.round(this.field.height / 2) + 8
         ),
-        300
+        500
       )
       .toPromise()
       .then(() => {

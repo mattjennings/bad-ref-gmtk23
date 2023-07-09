@@ -4,10 +4,18 @@ import { loader } from './assets'
 import Level1 from './scenes/level1'
 import { DevTool } from '@excaliburjs/dev-tools'
 
+const resolution = {
+  width: 320, //,ex.Resolution.GameBoyAdvance.width * 1.5,
+  // 16:9
+  height: 197, //ex.Resolution.GameBoyAdvance.height * 1.5,
+}
+console.log(resolution)
 const game = new ex.Engine({
   canvasElementId: 'game',
   displayMode: ex.DisplayMode.FitScreen,
-  resolution: ex.Resolution.GameBoyAdvance,
+  // resolution: ex.Resolution.SNES,
+  // 16:9
+  resolution,
   antialiasing: false,
 })
 

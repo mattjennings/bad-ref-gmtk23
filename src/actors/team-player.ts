@@ -2,9 +2,8 @@ import { Animation, Engine, Vector } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
-import { BasePlayer, BasePlayerArgs } from './base-player'
+import { BasePlayer, BasePlayerArgs, Team } from './base-player'
 
-export type Team = 'home' | 'away'
 export type TeamPosition = 'defender' | 'midfielder' | 'forward'
 
 const random = new ex.Random()

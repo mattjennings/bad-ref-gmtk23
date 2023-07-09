@@ -47,6 +47,7 @@ export class Referee extends BasePlayer {
   }
 
   onInitialize(_engine: Engine): void {
+    super.onInitialize(_engine)
     this.pos = ex.vec(
       Math.round(this.scene.field.width / 2) + 38,
       Math.round(this.scene.field.height / 2) + 8
@@ -55,7 +56,7 @@ export class Referee extends BasePlayer {
     this.directionQueue = new DirectionQueue(controls)
 
     this.scene.on('reset', () => {
-      this.blowWhistle()
+      this.blowWhistle(false)
     })
 
     this.scene.on('start', () => {
@@ -129,10 +130,14 @@ export class Referee extends BasePlayer {
     }
   }
 
-  blowWhistle() {
+  blowWhistle(reset = true) {
     this.isWhistling = true
     this.setAnimation('Whistle')
     this.vel = ex.vec(0, 0)
     assets.snd_whistle.play()
+
+    if (reset) {
+      this.scene.reset()
+    }
   }
 }
