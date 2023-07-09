@@ -277,7 +277,11 @@ export default class MatchScene extends ex.Scene {
 
     // set zindex in order
     sorted.forEach((actor, i) => {
-      if (actor.name === 'field_image' || actor instanceof ScreenElement) {
+      if (
+        actor.name === 'field_image' ||
+        actor instanceof ScreenElement ||
+        (actor as any).ignoreYSort
+      ) {
         return
       }
       if (actor instanceof Actor) {

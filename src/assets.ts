@@ -42,6 +42,12 @@ export const assets = {
   ase_icecreamTruck: new AsepriteResource(
     'sprites/ice_cream_truck/ice_cream_truck.json'
   ),
+  ase_icecreamCone: new AsepriteResource(
+    'sprites/ice_cream_cone/ice_cream_cone.json'
+  ),
+  ase_collectCelebration: new AsepriteResource(
+    'sprites/collect_celebration/collect_celebration.json'
+  ),
 
   snd_clack: new ex.Sound('sfx/Clack.mp3'),
   snd_cleanImpact: new ex.Sound('sfx/CleanImpact.mp3'),
