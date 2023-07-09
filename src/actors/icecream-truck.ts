@@ -92,7 +92,7 @@ export class IcecreamTruck extends ex.Actor {
   }
 
   giveIcecream() {
-    const distractionTime = 20000
+    const distractionTime = 10000
     const restockTime = 20000
 
     if (!this.isGivingIcecream && this.hasIcecream) {
