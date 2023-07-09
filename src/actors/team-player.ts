@@ -126,16 +126,6 @@ export class TeamPlayer extends BasePlayer {
     this.scene.on('start', () => {
       this.isResetting = false
     })
-
-    let isPainCount = 0
-    this.animations.Pain.events.on('loop', (a) => {
-      isPainCount++
-
-      if (isPainCount > 3) {
-        this.isPain = false
-        isPainCount = 0
-      }
-    })
   }
 
   update(engine: Engine, delta: number): void {
@@ -403,18 +393,6 @@ export class TeamPlayer extends BasePlayer {
     } else {
       this.vel = ex.vec(0, 0)
     }
-  }
-
-  hit() {
-    this.isPain = true
-    this.isSprinting = false
-    this.stamina = 0
-    this.setAnimation('Pain')
-
-    // git hit in random direction
-    const angle = random.pickOne([0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
-
-    this.vel = ex.vec(500 * Math.cos(angle), 500 * Math.sin(angle))
   }
 
   trip() {

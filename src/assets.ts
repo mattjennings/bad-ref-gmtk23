@@ -18,6 +18,9 @@ export const assets = {
   ase_goalieBlue: new AsepriteResource('sprites/players/GOALIE_BLUE.json'),
   ase_goalieRed: new AsepriteResource('sprites/players/GOALIE_RED.json'),
   ase_referee: new AsepriteResource('sprites/referee/REFEREE.json'),
+
+  snd_clack: new ex.Sound('sfx/Clack.mp3'),
+  snd_cleanImpact: new ex.Sound('sfx/CleanImpact.mp3'),
 }
 
 class DevLoader extends ex.Loader {
