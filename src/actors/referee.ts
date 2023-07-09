@@ -4,6 +4,7 @@ import { assets } from 'src/assets'
 import { DirectionQueue } from 'src/classes/DirectionQueue'
 import { Ball } from './ball'
 import { TeamPlayer } from './team-player'
+import { IcecreamTruck } from './icecream-truck'
 
 const controls = {
   left: ex.Input.Keys.A,
@@ -16,11 +17,7 @@ const controls = {
 
 export class Referee extends BasePlayer {
   directionQueue: DirectionQueue
-  moveSpeed = 125
-
-  isPunching = false
-  isWhistling = false
-  isKicking = false
+  moveSpeed = 130
 
   constructor() {
     super({
@@ -39,29 +36,27 @@ export class Referee extends BasePlayer {
     this.on('collisionstart', this.onCollisionStart.bind(this))
 
     this.animations.Punch.events.on('loop', () => {
-      this.isPunching = false
-      this.isWhistling = false // you can sometimes get stuck if you punch and whistle, quick fix
+      this.setAnimation('Idle')
     })
 
     this.animations.Whistle.events.on('loop', () => {
-      this.isWhistling = false
-      this.isPunching = false
+      this.setAnimation('Idle')
     })
 
-    this.animations.RedCard.events.on('loop', () => {
-      this.isWhistling = false
+    this.animations.GiveMoney.events.on('loop', () => {
+      this.setAnimation('Idle')
     })
 
     this.animations.Kick.events.on('loop', () => {
-      this.isKicking = false
+      this.setAnimation('Idle')
     })
   }
 
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine)
     this.pos = ex.vec(
-      Math.round(this.scene.field.width / 2) + 38,
-      Math.round(this.scene.field.height / 2) - 24
+      Math.round(this.scene.field.width / 2),
+      Math.round(this.scene.field.height / 2) - 64
     )
 
     this.directionQueue = new DirectionQueue(controls)
@@ -75,14 +70,35 @@ export class Referee extends BasePlayer {
     this.directionQueue.update(engine)
 
     if (engine.input.keyboard.wasPressed(controls.context)) {
-      this.punch()
+      const icecreamTruck = this.scene.entities.find((entity) => {
+        if (entity instanceof IcecreamTruck) {
+          return true
+        }
+      }) as IcecreamTruck | undefined
+
+      const isInfrontOfIcecreamTruck =
+        icecreamTruck &&
+        this.pos.distance(icecreamTruck.pos) < 45 &&
+        this.pos.y > icecreamTruck.pos.y
+
+      if (isInfrontOfIcecreamTruck) {
+        if (icecreamTruck.giveIcecream()) {
+          this.setAnimation('GiveMoney')
+        }
+      } else {
+        this.punch()
+      }
     }
 
     if (engine.input.keyboard.wasPressed(controls.whistle)) {
       this.blowWhistle()
     }
 
-    if (!this.isPunching && !this.isWhistling) {
+    if (
+      !this.isAnimation('Punch') &&
+      !this.isAnimation('Whistle') &&
+      !this.isAnimation('GiveMoney')
+    ) {
       const inputs = this.directionQueue.heldDirections
 
       const isLeftHeld = inputs.includes('LEFT')
@@ -95,7 +111,7 @@ export class Referee extends BasePlayer {
         isDownHeld ? this.moveSpeed : isUpHeld ? -this.moveSpeed : 0
       )
 
-      if (!this.isKicking) {
+      if (!this.isAnimation('Kick')) {
         if (this.vel.x !== 0 || this.vel.y !== 0) {
           this.setAnimation('Run')
 
@@ -116,21 +132,19 @@ export class Referee extends BasePlayer {
   }
 
   kickBall() {
-    if (!this.isWhistling) {
+    if (!this.isAnimation('Whistle') && !this.isAnimation('Punch')) {
       const successful = this.scene.ball.kick(
         this.scene.ball.pos.sub(this.pos).normalize().scale(500)
       )
 
       if (successful) {
-        this.isKicking = true
         this.setAnimation('Kick')
       }
     }
   }
 
   punch() {
-    if (!this.isWhistling) {
-      this.isPunching = true
+    if (!this.isAnimation('Whistle') && !this.isAnimation('Punch')) {
       this.setAnimation('Punch')
       this.vel = ex.vec(0, 0)
 
@@ -138,20 +152,19 @@ export class Referee extends BasePlayer {
         (entity) =>
           entity !== this &&
           entity instanceof BasePlayer &&
-          entity.pos.distance(this.pos) < 20
+          entity.pos.distance(this.pos) < 30
       ) as BasePlayer[]
 
       if (player) {
-        player.hit(player.pos.sub(this.pos).normalize())
+        player.scare(player.pos.sub(this.pos).normalize())
       } else {
-        assets.snd_dashA.play()
+        assets.snd_dashB.play()
       }
     }
   }
 
   blowWhistle(reset = true) {
-    if (!this.isWhistling) {
-      this.isWhistling = true
+    if (!this.isAnimation('Whistle')) {
       this.setAnimation('Whistle')
       this.vel = ex.vec(0, 0)
       assets.snd_whistle.play()

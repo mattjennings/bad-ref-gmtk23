@@ -288,8 +288,16 @@ export class TeamPlayer extends BasePlayer {
     const zone = this.getPositionZone()
     let pos =
       this.team === 'home'
-        ? ex.vec(zone.left + 36 + zone.width / 3, zone.center.y)
-        : ex.vec(zone.right + 36 - zone.width / 3, zone.center.y)
+        ? ex.vec(zone.left + zone.width / 3, zone.center.y - 36)
+        : ex.vec(zone.right - zone.width / 3, zone.center.y - 36)
+
+    if (this.teamPosition === 'defender') {
+      pos.x += (zone.width / 4) * (this.team === 'home' ? 1 : -1)
+    }
+
+    if (this.teamPosition === 'forward') {
+      pos.x -= (zone.width / 4) * (this.team === 'home' ? 1 : -1)
+    }
 
     const teammateOfSamePosition = this.getTeammateOfSamePosition()
 
@@ -414,8 +422,8 @@ export class TeamPlayer extends BasePlayer {
     }
   }
 
-  hit(direction: Vector): void {
-    super.hit(direction)
+  scare(direction: Vector): void {
+    super.scare(direction)
     this.isKicking = false
   }
   trip() {

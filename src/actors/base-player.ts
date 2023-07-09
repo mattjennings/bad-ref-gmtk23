@@ -24,15 +24,15 @@ export class BasePlayer extends ex.Actor {
   animations: Record<string, Animation>
 
   isPain = false
+  painFrames = 5
   isSprinting = false
   debug = false
 
   constructor({ sprite, debug, team, ...args }: BasePlayerArgs) {
     super({
       width: 16,
-      height: 12,
+      height: 16,
       collisionType: ex.CollisionType.Active,
-      collider: ex.Shape.Box(16, 12, ex.vec(0.5, 1), ex.vec(0, 12)),
       ...args,
     })
     this.team = team
@@ -52,7 +52,7 @@ export class BasePlayer extends ex.Actor {
     this.animations.Pain.events.on('loop', (a) => {
       isPainCount++
 
-      if (isPainCount > 3) {
+      if (isPainCount > this.painFrames) {
         this.isPain = false
         isPainCount = 0
       }
@@ -91,17 +91,21 @@ export class BasePlayer extends ex.Actor {
     this.currentGraphic().flipHorizontal = flip
   }
 
+  isAnimation(name: string) {
+    return this.currentGraphic() === this.animations[name]
+  }
+
   moveTo(pos: ex.Vector, speed: number) {
     const angle = pos.sub(this.pos).toAngle()
 
     this.vel = ex.vec(speed * Math.cos(angle), speed * Math.sin(angle))
   }
 
-  hit(direction: ex.Vector) {
+  scare(direction: ex.Vector) {
     this.isPain = true
     this.isSprinting = false
     this.setAnimation('Pain')
-    assets.snd_clack.play()
+    assets.snd_dashB.play()
 
     this.vel = direction.scale(500)
   }
