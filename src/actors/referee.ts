@@ -4,6 +4,7 @@ import { assets } from 'src/assets'
 import { DirectionQueue } from 'src/classes/DirectionQueue'
 import { Ball } from './ball'
 import { TeamPlayer } from './team-player'
+import { IcecreamTruck } from './icecream-truck'
 
 const controls = {
   left: ex.Input.Keys.A,
@@ -60,8 +61,9 @@ export class Referee extends BasePlayer {
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine)
     this.pos = ex.vec(
-      Math.round(this.scene.field.width / 2) + 38,
-      Math.round(this.scene.field.height / 2) - 24
+      // Math.round(this.scene.field.width / 2),
+      this.scene.field.width - 100,
+      Math.round(this.scene.field.height / 2) - 64
     )
 
     this.directionQueue = new DirectionQueue(controls)
@@ -75,9 +77,22 @@ export class Referee extends BasePlayer {
     this.directionQueue.update(engine)
 
     if (engine.input.keyboard.wasPressed(controls.context)) {
-      this.punch()
+      const icecreamTruck = this.scene.entities.find((entity) => {
+        if (entity instanceof IcecreamTruck) {
+          return true
+        }
+      }) as IcecreamTruck | undefined
 
-      // this.scene.home.goalie.distract(this, 5000)
+      const isInfrontOfIcecreamTruck =
+        icecreamTruck &&
+        this.pos.distance(icecreamTruck.pos) < 45 &&
+        this.pos.y > icecreamTruck.pos.y
+
+      if (isInfrontOfIcecreamTruck) {
+        icecreamTruck.giveIcecream()
+      } else {
+        this.punch()
+      }
     }
 
     if (engine.input.keyboard.wasPressed(controls.whistle)) {

@@ -7,8 +7,9 @@ import { TeamGoalie } from 'src/actors/team-goalie'
 import { Net } from 'src/actors/net'
 import { Referee } from 'src/actors/referee'
 import { Team } from 'src/actors/base-player'
-import {HudInstructions} from "../hud/hud-instructions";
-import {Scoreboard} from "../hud/scoreboard";
+import { HudInstructions } from '../hud/hud-instructions'
+import { Scoreboard } from '../hud/scoreboard'
+import { IcecreamTruck } from 'src/actors/icecream-truck'
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
@@ -52,13 +53,7 @@ export default class MatchScene extends ex.Scene {
       bottom: fieldSprite.height,
     })
 
-    // the real bounds of the field
-    this.field = new ex.BoundingBox({
-      left: 38,
-      right: 825,
-      top: 24,
-      bottom: 323,
-    })
+    this.field = worldBounds
 
     this.zones = {
       left: new ex.BoundingBox(0, 0, this.field.width / 3, this.field.height),
@@ -76,8 +71,8 @@ export default class MatchScene extends ex.Scene {
       ),
     }
     this.ball = new Ball({
-      x: Math.round(this.field.width / 2) + 38,
-      y: Math.round(this.field.height / 2) + 8,
+      x: Math.round(this.field.width / 2),
+      y: Math.round(this.field.height / 2) - 36,
     })
 
     engine.add(
@@ -185,8 +180,8 @@ export default class MatchScene extends ex.Scene {
     })
 
     // add HUD
-    engine.add(new HudInstructions());
-    engine.add(new Scoreboard());
+    engine.add(new HudInstructions())
+    engine.add(new Scoreboard())
 
     // setup camera
     this.camera.strategy.lockToActor(this.referee)
@@ -194,6 +189,7 @@ export default class MatchScene extends ex.Scene {
       new ex.BoundingBox(0, 0, worldBounds.right, worldBounds.bottom)
     )
 
+    this.add(new IcecreamTruck())
     this.on('goal', this.onGoal.bind(this))
     setTimeout(() => {
       this.start()
@@ -224,8 +220,8 @@ export default class MatchScene extends ex.Scene {
     this.ball.actions
       .moveTo(
         ex.vec(
-          Math.round(this.field.width / 2) + 38 + posession,
-          Math.round(this.field.height / 2) + 8
+          Math.round(this.field.width / 2) + posession,
+          Math.round(this.field.height / 2) - 36
         ),
         500
       )

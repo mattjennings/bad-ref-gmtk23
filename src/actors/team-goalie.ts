@@ -96,7 +96,7 @@ export class TeamGoalie extends BasePlayer {
     if (this.isDistracted && this.distractedBy) {
       const distance = this.pos.distance(this.distractedBy.pos)
 
-      if (distance > 20) {
+      if (distance > 10) {
         this.moveTo(this.distractedBy.pos, 100)
       } else {
         this.vel = ex.vec(0, 0)
@@ -232,10 +232,16 @@ export class TeamGoalie extends BasePlayer {
     this.isPain = false
     this._slideTime = 0
     this.distractedBy = actor
+    this.body.collisionType = ex.CollisionType.Passive
+
+    const undistract = () => {
+      this.isDistracted = false
+      this.distractedBy = undefined
+      this.body.collisionType = ex.CollisionType.Active
+    }
     actor.once('kill', (ev: ex.KillEvent) => {
       if (actor === ev.other) {
-        this.isDistracted = false
-        this.distractedBy = undefined
+        undistract()
       }
     })
     this.actions
@@ -243,8 +249,7 @@ export class TeamGoalie extends BasePlayer {
       .toPromise()
       .then(() => {
         if (actor === this.distractedBy) {
-          this.distractedBy = undefined
-          this.isDistracted = false
+          undistract()
         }
       })
   }
