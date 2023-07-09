@@ -21,6 +21,7 @@ export const assets = {
 
   snd_clack: new ex.Sound('sfx/Clack.mp3'),
   snd_cleanImpact: new ex.Sound('sfx/CleanImpact.mp3'),
+  snd_whistle: new ex.Sound('sfx/Whistle.mp3'),
 }
 
 class DevLoader extends ex.Loader {

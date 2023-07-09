@@ -27,6 +27,8 @@ export class Referee extends BasePlayer {
       collisionType: ex.CollisionType.Active,
     })
 
+    this.body.mass = 2000
+
     this.animations.Punch = this.sprite.getAnimation('Punch')!
     this.animations.RedCard = this.sprite.getAnimation('RedCard')!
     this.animations.Whistle = this.sprite.getAnimation('Whistle')!
@@ -131,5 +133,6 @@ export class Referee extends BasePlayer {
     this.isWhistling = true
     this.setAnimation('Whistle')
     this.vel = ex.vec(0, 0)
+    assets.snd_whistle.play()
   }
 }

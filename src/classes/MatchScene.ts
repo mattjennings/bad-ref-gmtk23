@@ -12,7 +12,6 @@ export default class MatchScene extends ex.Scene {
   home: {
     players: TeamPlayer[]
     goalie: TeamGoalie
-    // goalie: TeamGoalie
     net: Net
   }
   away: {
@@ -168,12 +167,12 @@ export default class MatchScene extends ex.Scene {
     engine.add(this.referee)
 
     Array.from([
-      ...this.home.players,
-      ...this.away.players,
+      // ...this.home.players,
+      // ...this.away.players,
       this.home.net,
       this.away.net,
-      this.home.goalie,
-      this.away.goalie,
+      // this.home.goalie,
+      // this.away.goalie,
     ]).forEach((player, i) => {
       this.engine.add(player)
     })
