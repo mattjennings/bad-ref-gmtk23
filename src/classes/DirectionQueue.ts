@@ -31,10 +31,10 @@ export class DirectionQueue {
 
   update(engine) {
     ;[
-      { key: this.controls.left, dir: LEFT },
-      { key: this.controls.right, dir: RIGHT },
-      { key: this.controls.up, dir: UP },
-      { key: this.controls.down, dir: DOWN },
+      ...this.controls.left.map((key) => ({ key, dir: LEFT })),
+      ...this.controls.right.map((key) => ({ key, dir: RIGHT })),
+      ...this.controls.up.map((key) => ({ key, dir: UP })),
+      ...this.controls.down.map((key) => ({ key, dir: DOWN })),
     ].forEach((group) => {
       if (engine.input.keyboard.wasPressed(group.key)) {
         this.add(group.dir)

@@ -7,10 +7,10 @@ import { TeamPlayer } from './team-player'
 import { IcecreamTruck } from './icecream-truck'
 
 const controls = {
-  left: ex.Input.Keys.A,
-  right: ex.Input.Keys.D,
-  up: ex.Input.Keys.W,
-  down: ex.Input.Keys.S,
+  left: [ex.Input.Keys.A, ex.Input.Keys.Left],
+  right: [ex.Input.Keys.D, ex.Input.Keys.Right],
+  up: [ex.Input.Keys.W, ex.Input.Keys.Up],
+  down: [ex.Input.Keys.S, ex.Input.Keys.Down],
   whistle: ex.Input.Keys.Enter,
   context: ex.Input.Keys.Space,
 }
