@@ -32,6 +32,7 @@ export class TeamGoalie extends BasePlayer {
       sprite: sprites[team],
     })
 
+    this.body.mass = 2000
     this.team = team
 
     this.animations.BlockUp = this.sprite.getAnimation('BlockUp')!
@@ -73,6 +74,10 @@ export class TeamGoalie extends BasePlayer {
   }
 
   update(engine: Engine, delta: number): void {
+    if (this.isPain) {
+      this.vel = this.vel.scale(0.9)
+      return
+    }
     const { top: netTop, bottom: netBottom } = this.getGoalBounds()
 
     const goalieTop = this.pos.y

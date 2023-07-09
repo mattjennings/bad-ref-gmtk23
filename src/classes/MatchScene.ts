@@ -5,13 +5,13 @@ import { Actor, Engine } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
 import { TeamGoalie } from 'src/actors/team-goalie'
 import { Net } from 'src/actors/net'
+import { Referee } from 'src/actors/referee'
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
   home: {
     players: TeamPlayer[]
     goalie: TeamGoalie
-    // goalie: TeamGoalie
     net: Net
   }
   away: {
@@ -19,6 +19,7 @@ export default class MatchScene extends ex.Scene {
     goalie: TeamGoalie
     net: Net
   }
+  referee: Referee
 
   field: ex.BoundingBox
   zones: Record<'left' | 'mid' | 'right', ex.BoundingBox>
@@ -150,16 +151,20 @@ export default class MatchScene extends ex.Scene {
           team: 'away',
           teamPosition: 'midfielder',
         }),
-        // new TeamPlayer({
-        //   team: 'away',
-        //   teamPosition: 'defender',
-        // }),
-        // new TeamPlayer({
-        //   team: 'away',
-        //   teamPosition: 'defender',
-        // }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
       ],
     }
+
+    this.referee = new Referee()
+
+    engine.add(this.referee)
 
     Array.from([
       ...this.home.players,
@@ -173,7 +178,7 @@ export default class MatchScene extends ex.Scene {
     })
 
     // setup camera
-    this.camera.strategy.lockToActor(this.ball)
+    this.camera.strategy.lockToActor(this.referee)
     this.camera.strategy.limitCameraBounds(
       new ex.BoundingBox(0, 0, worldBounds.right, worldBounds.bottom)
     )
