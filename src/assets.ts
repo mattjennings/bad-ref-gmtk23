@@ -8,6 +8,7 @@ export const assets = {
   img_netLeftFront: new ex.ImageSource('sprites/net/net_left_front.png'),
   img_netRightBack: new ex.ImageSource('sprites/net/net_right_back.png'),
   img_netRightFront: new ex.ImageSource('sprites/net/net_right_back.png'),
+  img_hudInstructions: new ex.ImageSource('sprites/hud_instructions/hud_instructions.png'),
 
   ase_ballVertical: new AsepriteResource('sprites/ball/ball_vertical.json'),
   ase_ballHorizontal: new AsepriteResource('sprites/ball/ball_horizontal.json'),
