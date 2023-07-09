@@ -317,14 +317,6 @@ export class TeamPlayer extends BasePlayer {
   }
 
   kickBall(direction: ex.Vector, power = this.power) {
-    const magnitude = (vec: ex.Vector) =>
-      Math.sqrt(Math.pow(vec.x, 2) + Math.pow(vec.y, 2))
-
-    // if ball is moving too fast, don't kick it
-    if (magnitude(this.scene.ball.vel) > 50) {
-      return
-    }
-
     if (!this.isKicking) {
       const angle = direction.sub(this.scene.ball.pos).toAngle()
 
