@@ -20,7 +20,7 @@ export class TeamGoalie extends BasePlayer {
   team: Team
   net: Net
 
-  power = 200
+  power = 300
   friction = 0.1
   slideDuration = 400
   slideSpeed = 300
@@ -73,8 +73,8 @@ export class TeamGoalie extends BasePlayer {
   }
 
   update(engine: Engine, delta: number): void {
-    const netTop = this.net.pos.y - this.net.height / 2
-    const netBottom = this.net.pos.y
+    const { top: netTop, bottom: netBottom } = this.getGoalBounds()
+
     const goalieTop = this.pos.y
     const goalieBottom = this.pos.y + this.height
     const ball = this.scene.ball
@@ -82,13 +82,17 @@ export class TeamGoalie extends BasePlayer {
 
     const target = ex.vec(
       this.getLineX(),
-      ex.clamp(ball.pos.y, netTop, netBottom)
+      ex.clamp(ball.pos.y, netTop + 16, netBottom - 8)
     )
 
-    const shouldMoveUp = ball.pos.y < goalieTop && goalieTop > netTop
-    const shouldMoveDown = ball.pos.y > goalieBottom && goalieBottom < netBottom
+    const shouldMoveUp =
+      ball.pos.y < goalieTop && Math.abs(goalieTop - target.y) > 5
+    const shouldMoveDown =
+      ball.pos.y > goalieBottom && Math.abs(target.y - goalieBottom) > 5
 
-    if (!this.isSliding()) {
+    if (this.shouldSlide()) {
+      this.slide(this.pos.y < ball.pos.y ? 'down' : 'up')
+    } else if (!this.isSliding()) {
       if (!this.isLinedUpWithBall() && (shouldMoveUp || shouldMoveDown)) {
         this.moveTo(target, 50)
       } else {
@@ -103,15 +107,11 @@ export class TeamGoalie extends BasePlayer {
     }
 
     if (
-      distanceToBall < 20 &&
+      distanceToBall < 30 &&
       Math.abs(ball.vel.x) < 100 &&
       Math.abs(ball.vel.y) < 100
     ) {
       this.kickBall()
-    }
-
-    if (this.shouldSlide()) {
-      this.slide(this.pos.y < ball.pos.y ? 'down' : 'up')
     }
 
     this.currentGraphic().flipHorizontal = this.team === 'away'
@@ -132,12 +132,17 @@ export class TeamGoalie extends BasePlayer {
   }
 
   isInNet() {
-    const top = this.net.pos.y - this.net.height / 2
-    const bottom = this.net.pos.y
+    const { top, bottom } = this.getGoalBounds()
 
     return this.pos.y > top && this.pos.y < bottom
   }
 
+  getGoalBounds() {
+    return {
+      top: this.net.pos.y - this.net.height / 2,
+      bottom: this.net.pos.y,
+    }
+  }
   kickBall() {
     this.scene.ball.kick(
       ex.vec(
@@ -157,6 +162,7 @@ export class TeamGoalie extends BasePlayer {
     const ballIsMoving = Math.abs(ball.vel.x) > 100
     const isMovingTowardsGoal =
       this.team === 'home' ? ball.vel.x < 0 : ball.vel.x > 0
+    // const ballIsGoingIntoNet =
 
     return (
       this.isInNet() &&
