@@ -1,17 +1,17 @@
-import { Animation, Engine } from 'excalibur'
+import { Animation, Engine, Vector } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
+import { BasePlayer, BasePlayerArgs } from './base-player'
 
-type Team = 'home' | 'away'
-type TeamPosition = 'defender' | 'midfielder' | 'forward'
+export type Team = 'home' | 'away'
+export type TeamPosition = 'defender' | 'midfielder' | 'forward'
 
 const random = new ex.Random()
 
 const sprites = {
   home: [assets.ase_character1Blue, assets.ase_character2Blue],
   away: [assets.ase_character1Red, assets.ase_character2Red],
-  shadow: assets.img_shadow.toSprite(),
 }
 
 const positionTemplates = {
@@ -29,17 +29,21 @@ const positionTemplates = {
   forward: {
     maxStamina: 50,
     moveSpeed: 60,
-    power: 700,
+    power: 1000,
   },
 }
 
-export class TeamPlayer extends ex.Actor {
+export interface TeamPlayerArgs extends Omit<BasePlayerArgs, 'sprite'> {
+  team: Team
+  teamPosition: TeamPosition
+  debug?: boolean
+}
+
+export class TeamPlayer extends BasePlayer {
   declare scene: MatchScene
 
   team: Team
   teamPosition: TeamPosition
-  sprite: AsepriteResource
-  animations: Record<string, Animation>
   moveSpeed: number
   power: number
   maxStamina: number
@@ -53,36 +57,21 @@ export class TeamPlayer extends ex.Actor {
 
   debug = false
 
-  constructor({
-    team,
-    teamPosition,
-    debug,
-    ...args
-  }: ex.ActorArgs & {
-    team: Team
-    teamPosition: TeamPosition
-    debug?: boolean
-  }) {
+  constructor({ team, teamPosition, debug, ...args }: TeamPlayerArgs) {
     super({
       ...args,
       name: `player_${team}_${teamPosition}`,
       width: 16,
       height: 32,
       collisionType: ex.CollisionType.Passive,
+      sprite:
+        team === 'home'
+          ? random.pickOne(sprites.home)
+          : random.pickOne(sprites.away),
     })
     this.team = team
     this.teamPosition = teamPosition
     this.debug = debug ?? false
-
-    this.sprite =
-      this.team === 'home'
-        ? random.pickOne(sprites.home)
-        : random.pickOne(sprites.away)
-    this.animations = {
-      Idle: this.sprite.getAnimation('Idle')!.clone(),
-      Run: this.sprite.getAnimation('Run')!.clone(),
-    }
-    this.setAnimation('Idle')
 
     Object.assign(this, positionTemplates[teamPosition])
     this.stamina = Math.random() * this.maxStamina
@@ -91,12 +80,13 @@ export class TeamPlayer extends ex.Actor {
   }
 
   onInitialize(_engine: Engine): void {
+    super.onInitialize(_engine)
     const zone = this.getPositionZone()
 
     this.pos =
       this.team === 'home'
-        ? ex.vec(zone.left + zone.width / 3, zone.center.y)
-        : ex.vec(zone.right - zone.width / 3, zone.center.y)
+        ? ex.vec(zone.left + zone.width / 3, zone.center.y - 32)
+        : ex.vec(zone.right - zone.width / 3, zone.center.y - 32)
 
     const teammateOfSamePosition = this.getTeammateOfSamePosition()
 
@@ -137,12 +127,6 @@ export class TeamPlayer extends ex.Actor {
         )
       }
     })
-
-    // draw shadow
-    this.graphics.onPreDraw = (ctx) => {
-      sprites.shadow.draw(ctx, -16, -16)
-    }
-
     // this.addChild(
     //   new ex.Label({
     //     text: this.teamPosition,
@@ -179,17 +163,6 @@ export class TeamPlayer extends ex.Actor {
     )
     const isBallInZone = zone.contains(ball.pos)
 
-    const moveTo = (pos: ex.Vector, speed: number) => {
-      const angle = pos.sub(this.pos).toAngle()
-      const distance = this.pos.distance(pos)
-
-      if (distance > 1) {
-        this.vel = ex.vec(speed * Math.cos(angle), speed * Math.sin(angle))
-      } else {
-        this.vel = ex.vec(0, 0)
-      }
-    }
-
     const chaseBall = () => {
       const speedFactor = this.isSprinting
         ? 1.25
@@ -197,7 +170,7 @@ export class TeamPlayer extends ex.Actor {
         ? 0.85
         : 1
 
-      moveTo(
+      this.moveTo(
         ex.vec(ball.pos.x, ball.pos.y - ball.height / 2),
         this.moveSpeed * speedFactor
       )
@@ -224,10 +197,10 @@ export class TeamPlayer extends ex.Actor {
           ? zone.center.y - zone.center.y / 3
           : zone.center.y + zone.center.y / 3
 
-        moveTo(ex.vec(x, y), this.moveSpeed)
+        this.moveTo(ex.vec(x, y), this.moveSpeed)
       } else {
         const y = ball.pos.y
-        moveTo(ex.vec(x, y), this.moveSpeed)
+        this.moveTo(ex.vec(x, y), this.moveSpeed)
       }
     }
 
@@ -268,7 +241,7 @@ export class TeamPlayer extends ex.Actor {
   kickBall(direction: ex.Vector, power = this.power) {
     // kickBall() gets called every frame, so setting a 10% chance of kicking
     // actually leads to some decent results
-    const success = Math.random() > 0.9
+    const success = true // Math.random() > 0.9
 
     const magnitude = (vec: ex.Vector) =>
       Math.sqrt(Math.pow(vec.x, 2) + Math.pow(vec.y, 2))
@@ -348,19 +321,14 @@ export class TeamPlayer extends ex.Actor {
         entity !== this
     ) as TeamPlayer | undefined
   }
-  currentGraphic() {
-    return this.graphics.current[0]?.graphic
-  }
 
-  setAnimation(name: string) {
-    const flip = this.currentGraphic()?.flipHorizontal ?? false
-    const anim = this.animations[name]
+  moveTo(pos: Vector, speed: number): void {
+    const distance = this.pos.distance(pos)
 
-    if (!anim) {
-      throw new Error(`Animation ${name} does not exist`)
+    if (distance > 1) {
+      super.moveTo(pos, speed)
+    } else {
+      this.vel = ex.vec(0, 0)
     }
-
-    this.graphics.use(anim)
-    this.currentGraphic().flipHorizontal = flip
   }
 }

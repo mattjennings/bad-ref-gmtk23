@@ -35,7 +35,7 @@ export class Ball extends ex.Actor {
     }
 
     _engine.input.keyboard.on('press', (ev) => {
-      const power = 500
+      const power = 200
       if (ev.key === ex.Input.Keys.Left) {
         this.kick(ex.Vector.Left.scale(power), true)
       } else if (ev.key === ex.Input.Keys.Right) {
