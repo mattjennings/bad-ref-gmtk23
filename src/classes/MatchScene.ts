@@ -10,22 +10,29 @@ import { Team } from 'src/actors/base-player'
 import { HudInstructions } from '../hud/hud-instructions'
 import { Scoreboard } from '../hud/scoreboard'
 import { IcecreamTruck } from 'src/actors/icecream-truck'
+import { MessageBox } from 'src/hud/message-box'
 
+export const SCORE_TO_WIN = 5
 export default class MatchScene extends ex.Scene {
   ball: Ball
   home: {
     players: TeamPlayer[]
     goalie: TeamGoalie
     net: Net
+    score: number
   }
   away: {
     players: TeamPlayer[]
     goalie: TeamGoalie
     net: Net
+    score: number
   }
 
   lastPosession?: Team
   referee: Referee
+
+  gameHasStarted = false
+  gameOver = false
 
   field: ex.BoundingBox
   zones: Record<'left' | 'mid' | 'right', ex.BoundingBox>
@@ -112,6 +119,7 @@ export default class MatchScene extends ex.Scene {
     this.home = {
       net: new Net({ team: 'home' }),
       goalie: new TeamGoalie({ team: 'home' }),
+      score: 0,
       players: [
         new TeamPlayer({
           team: 'home',
@@ -137,6 +145,7 @@ export default class MatchScene extends ex.Scene {
     }
 
     this.away = {
+      score: 0,
       net: new Net({ team: 'away' }),
       goalie: new TeamGoalie({ team: 'away' }),
       players: [
@@ -182,6 +191,11 @@ export default class MatchScene extends ex.Scene {
     // add HUD
     engine.add(new HudInstructions())
     engine.add(new Scoreboard())
+    engine.add(
+      new MessageBox(
+        'You are a referee. Team Blue paid you to\nhelp them win. Do whatever it takes.\n\nPress Enter to start the game.'
+      )
+    )
 
     // setup camera
     this.camera.strategy.lockToActor(this.referee)
@@ -191,20 +205,38 @@ export default class MatchScene extends ex.Scene {
 
     this.add(new IcecreamTruck())
     this.on('goal', this.onGoal.bind(this))
-    setTimeout(() => {
-      this.start()
-      assets.snd_crowdA.play()
-    })
+    assets.snd_crowdA.play()
   }
 
   onGoal({ team }: { team: Team }) {
+    this[team].score++
+
     assets.snd_crowdA.play()
     assets.snd_crowdBHigh.play()
     assets.snd_crowdBLow.play()
+
+    if (this.home.score >= SCORE_TO_WIN) {
+      this.gameHasStarted = false
+      this.gameOver = true
+      this.engine.add(
+        new MessageBox('Team Blue wins!\n\nPress Enter to play again.')
+      )
+    } else if (this.away.score >= SCORE_TO_WIN) {
+      this.gameHasStarted = false
+      this.gameOver = true
+      this.engine.add(new MessageBox('You lose.\n\nPress Enter to play again.'))
+    }
+
     this.reset()
   }
 
   start() {
+    if (this.gameOver) {
+      this.gameOver = false
+      this.gameHasStarted = true
+      this.home.score = 0
+      this.away.score = 0
+    }
     this.emit('start', {})
   }
 
@@ -227,7 +259,9 @@ export default class MatchScene extends ex.Scene {
       )
       .toPromise()
       .then(() => {
-        this.emit('start', {})
+        if (this.gameHasStarted) {
+          this.start()
+        }
       })
   }
 
