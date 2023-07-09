@@ -17,6 +17,7 @@ export const assets = {
   ase_character2Blue: new AsepriteResource('sprites/players/C2_BLUE.json'),
   ase_goalieBlue: new AsepriteResource('sprites/players/GOALIE_BLUE.json'),
   ase_goalieRed: new AsepriteResource('sprites/players/GOALIE_RED.json'),
+  ase_referee: new AsepriteResource('sprites/referee/REFEREE.json'),
 }
 
 class DevLoader extends ex.Loader {

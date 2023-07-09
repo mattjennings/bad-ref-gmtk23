@@ -53,10 +53,11 @@ export class TeamPlayer extends BasePlayer {
 
   zones: Record<string, ex.BoundingBox>
   canLeaveZone = true
-  isSprinting = false
 
   debug = false
   isResetting = true
+  isSprinting = false
+  isPain = false
 
   constructor({ team, teamPosition, debug, ...args }: TeamPlayerArgs) {
     super({
@@ -125,9 +126,23 @@ export class TeamPlayer extends BasePlayer {
     this.scene.on('start', () => {
       this.isResetting = false
     })
+
+    let isPainCount = 0
+    this.animations.Pain.events.on('loop', (a) => {
+      isPainCount++
+
+      if (isPainCount > 3) {
+        this.isPain = false
+        isPainCount = 0
+      }
+    })
   }
 
   update(engine: Engine, delta: number): void {
+    if (this.isPain) {
+      this.vel = this.vel.scale(0.9)
+      return
+    }
     if (!this.isResetting) {
       // move towards ball
       const ball = this.scene.ball
@@ -188,7 +203,7 @@ export class TeamPlayer extends BasePlayer {
             ? zone.center.y - zone.center.y / 3
             : zone.center.y + zone.center.y / 3
 
-          this.moveTo(ex.vec(x, y), this.moveSpeed)
+          this.moveTo(this.getStartingPosition(), this.moveSpeed)
         } else {
           const y = ball.pos.y
           this.moveTo(ex.vec(x, y), this.moveSpeed)
@@ -276,6 +291,7 @@ export class TeamPlayer extends BasePlayer {
 
     return pos
   }
+
   isBehindOpposingNet() {
     if (this.team === 'home') {
       const net = this.scene.away.net
@@ -377,11 +393,37 @@ export class TeamPlayer extends BasePlayer {
 
   moveTo(pos: Vector, speed: number): void {
     const distance = this.pos.distance(pos)
+    const refereeDistance = this.pos.distance(this.scene.referee.pos)
 
     if (distance > 1) {
+      if (refereeDistance < 10) {
+        speed *= 0.4
+      }
       super.moveTo(pos, speed)
     } else {
       this.vel = ex.vec(0, 0)
     }
+  }
+
+  hit() {
+    this.isPain = true
+    this.isSprinting = false
+    this.stamina = 0
+    this.setAnimation('Pain')
+
+    // git hit in random direction
+    const angle = random.pickOne([0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
+
+    this.vel = ex.vec(500 * Math.cos(angle), 500 * Math.sin(angle))
+  }
+
+  trip() {
+    // this.isPain = true
+    // this.isSprinting = false
+    // this.stamina = 0
+    // this.setAnimation('Trip')
+    // // git hit in random direction
+    // const angle = random.pickOne([0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
+    // this.vel = ex.vec(300 * Math.cos(angle), 300 * Math.sin(angle))
   }
 }
