@@ -21,7 +21,7 @@ export default class MatchScene extends ex.Scene {
     net: Net
   }
 
-  lastPosession: Team = 'home'
+  lastPosession?: Team
   referee: Referee
 
   field: ex.BoundingBox
@@ -187,22 +187,32 @@ export default class MatchScene extends ex.Scene {
     )
 
     this.on('goal', this.onGoal.bind(this))
-    setTimeout(() => this.emit('start', {}))
+    setTimeout(() => {
+      this.start()
+    })
   }
 
   onGoal({ team }: { team: Team }) {
     this.reset()
   }
 
+  start() {
+    this.emit('start', {})
+  }
+
   reset() {
     this.emit('reset', {})
+
+    const posession = this.lastPosession
+      ? this.lastPosession === 'home'
+        ? -16
+        : 16
+      : 0
 
     this.ball.actions
       .moveTo(
         ex.vec(
-          Math.round(this.field.width / 2) +
-            38 +
-            (this.lastPosession === 'home' ? -16 : 16),
+          Math.round(this.field.width / 2) + 38 + posession,
           Math.round(this.field.height / 2) + 8
         ),
         500

@@ -47,12 +47,12 @@ export class Ball extends ex.Actor {
           this.kick(ex.Vector.Down.scale(power), true)
         }
       })
-    }
 
-    _engine.input.pointers.on('down', (ev) => {
-      this.pos = ev.worldPos
-      console.log('moved to', this.pos)
-    })
+      _engine.input.pointers.on('down', (ev) => {
+        this.pos = ev.worldPos
+        console.log('moved to', this.pos)
+      })
+    }
   }
 
   /**

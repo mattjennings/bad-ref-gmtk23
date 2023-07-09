@@ -50,18 +50,13 @@ export class Referee extends BasePlayer {
     super.onInitialize(_engine)
     this.pos = ex.vec(
       Math.round(this.scene.field.width / 2) + 38,
-      Math.round(this.scene.field.height / 2) + 8
+      Math.round(this.scene.field.height / 2) - 24
     )
 
     this.directionQueue = new DirectionQueue(controls)
 
     this.scene.on('reset', () => {
       this.blowWhistle(false)
-    })
-
-    this.scene.on('start', () => {
-      this.isPunching = false
-      this.isWhistling = false
     })
   }
 
@@ -131,13 +126,15 @@ export class Referee extends BasePlayer {
   }
 
   blowWhistle(reset = true) {
-    this.isWhistling = true
-    this.setAnimation('Whistle')
-    this.vel = ex.vec(0, 0)
-    assets.snd_whistle.play()
+    if (!this.isWhistling) {
+      this.isWhistling = true
+      this.setAnimation('Whistle')
+      this.vel = ex.vec(0, 0)
+      assets.snd_whistle.play()
 
-    if (reset) {
-      this.scene.reset()
+      if (reset) {
+        this.scene.reset()
+      }
     }
   }
 }
