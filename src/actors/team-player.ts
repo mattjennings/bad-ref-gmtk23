@@ -209,10 +209,22 @@ export class TeamPlayer extends BasePlayer {
       if (this.teamPosition === 'defender') {
         this.clearBall()
       } else {
-        this.kickBall(
-          this.getGoalPosition(),
-          this.isSprinting ? this.power * 1.5 : this.power
-        )
+        // kick back out infront of net
+        if (this.isBehindOpposingNet()) {
+          const center = this.team === 'home' ? -150 : 150
+
+          this.kickBall(
+            ex.vec(this.getShotPosition().x + center, this.getShotPosition().y),
+            this.power * 0.5
+          )
+        }
+        // kick ball towards net
+        else {
+          this.kickBall(
+            this.getShotPosition(),
+            this.isSprinting ? this.power * 1.5 : this.power
+          )
+        }
       }
     }
 
@@ -235,6 +247,16 @@ export class TeamPlayer extends BasePlayer {
       this.currentGraphic().flipHorizontal = this.vel.x < 0
     } else {
       this.setAnimation('Idle')
+    }
+  }
+
+  isBehindOpposingNet() {
+    if (this.team === 'home') {
+      const net = this.scene.away.net
+      return this.pos.x + this.width > net.pos.x - net.width
+    } else {
+      const net = this.scene.home.net
+      return this.pos.x - this.width < net.pos.x + net.width
     }
   }
 
@@ -271,7 +293,7 @@ export class TeamPlayer extends BasePlayer {
   clearBall() {
     this.kickBall(
       ex.vec(
-        this.getGoalPosition().x,
+        this.getShotPosition().x,
         random.pickOne([0, this.scene.field.height])
       )
     )
@@ -283,14 +305,19 @@ export class TeamPlayer extends BasePlayer {
     }
   }
 
-  getGoalPosition() {
+  getShotPosition() {
     const net = this.team === 'home' ? this.scene.away.net : this.scene.home.net
 
+    const netCenter = net.pos.y - net.height / 4
+    const goalie =
+      this.team === 'home' ? this.scene.away.goalie : this.scene.home.goalie
+
+    // const freeYSpace = this.console.log(freeYSpace)
     return ex.vec(
       net.team === 'home'
         ? net.pos.x - net.width / 4
         : net.pos.x + net.width / 4,
-      net.pos.y - net.height / 4
+      netCenter
     )
   }
 
