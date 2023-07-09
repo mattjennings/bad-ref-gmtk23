@@ -33,6 +33,7 @@ export default class MatchScene extends ex.Scene {
 
     engine.add(
       new Sprite({
+        name: 'field_image',
         x: 0,
         y: 0,
         anchor: ex.Vector.Zero,
@@ -240,6 +241,9 @@ export default class MatchScene extends ex.Scene {
 
     // set zindex in order
     sorted.forEach((actor, i) => {
+      if (actor.name === 'field_image') {
+        return
+      }
       if (actor instanceof Actor) {
         actor.z = i
       }
