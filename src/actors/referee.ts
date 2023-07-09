@@ -116,7 +116,7 @@ export class Referee extends BasePlayer {
   }
 
   kickBall() {
-    if (!this.isWhistling) {
+    if (!this.isWhistling && !this.isPunching) {
       const successful = this.scene.ball.kick(
         this.scene.ball.pos.sub(this.pos).normalize().scale(500)
       )
@@ -129,7 +129,7 @@ export class Referee extends BasePlayer {
   }
 
   punch() {
-    if (!this.isWhistling) {
+    if (!this.isWhistling && !this.isKicking) {
       this.isPunching = true
       this.setAnimation('Punch')
       this.vel = ex.vec(0, 0)
@@ -152,6 +152,8 @@ export class Referee extends BasePlayer {
   blowWhistle(reset = true) {
     if (!this.isWhistling) {
       this.isWhistling = true
+      this.isPunching = false
+      this.isKicking = false
       this.setAnimation('Whistle')
       this.vel = ex.vec(0, 0)
       assets.snd_whistle.play()
