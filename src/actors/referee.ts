@@ -164,11 +164,10 @@ export class Referee extends BasePlayer {
 
       if (nearbyPlayers.length) {
         this.suspicion += nearbyPlayers.length * 0.5
+        assets.snd_taunt.play()
         nearbyPlayers.forEach((player) => {
           player.scare(player.pos.sub(this.pos).normalize())
         })
-      } else {
-        assets.snd_dashB.play()
       }
     }
   }
