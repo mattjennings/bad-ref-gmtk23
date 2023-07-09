@@ -1,24 +1,30 @@
 import { Engine, ScreenElement } from 'excalibur'
 import { assets } from '../assets'
+import MatchScene from 'src/classes/MatchScene'
 
 class ScoreboardNumber extends ScreenElement {
+  score = 0
+  team: string
+  declare scene: MatchScene
+
   constructor({ x = 0, y = 0, team = 'home' }) {
     super({
       x,
       y,
     })
     this.team = team
-    this.score = 0
-    this.graphics.use(assets.ase_scoreNumbers.getAnimation(String(this.score)))
+    this.graphics.use(assets.ase_scoreNumbers.getAnimation(String(this.score))!)
   }
 
   onInitialize() {
-    this.scene.on('goal', (event) => {
+    this.scene.on('goal', (event: any) => {
       if (event.team === this.team) {
         if (this.score < 9) {
           this.score += 1
         }
-        this.graphics.use(assets.ase_scoreNumbers.getAnimation(String(this.score)))
+        this.graphics.use(
+          assets.ase_scoreNumbers.getAnimation(String(this.score))!
+        )
       }
     })
   }
