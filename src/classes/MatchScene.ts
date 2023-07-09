@@ -87,32 +87,47 @@ export default class MatchScene extends ex.Scene {
     })
 
     engine.add(
+      // top
       new ex.Actor({
         collisionType: ex.CollisionType.Fixed,
-        collider: new ex.CompositeCollider([
-          // left
-          new ex.EdgeCollider({
-            begin: ex.vec(16, 0),
-            end: ex.vec(16, worldBounds.bottom),
-          }),
-
-          // bottom
-          new ex.EdgeCollider({
-            begin: ex.vec(16, worldBounds.bottom),
-            end: ex.vec(worldBounds.width - 16, worldBounds.height),
-          }),
-
-          // right
-          new ex.EdgeCollider({
-            begin: ex.vec(worldBounds.width - 16, worldBounds.height),
-            end: ex.vec(worldBounds.width - 16, 0),
-          }),
-          // top
-          new ex.EdgeCollider({
-            begin: ex.vec(worldBounds.width - 16, 0),
-            end: ex.vec(0, 0),
-          }),
-        ]),
+        x: 0,
+        y: 0,
+        anchor: ex.vec(0, 1),
+        width: worldBounds.width,
+        height: 32,
+      })
+    )
+    // bottom
+    engine.add(
+      new ex.Actor({
+        collisionType: ex.CollisionType.Fixed,
+        x: 0,
+        y: worldBounds.height,
+        anchor: ex.vec(0, 0),
+        width: worldBounds.width,
+        height: 32,
+      })
+    )
+    // left
+    engine.add(
+      new ex.Actor({
+        collisionType: ex.CollisionType.Fixed,
+        x: 0,
+        y: 0,
+        anchor: ex.vec(1, 0),
+        width: 32,
+        height: worldBounds.height,
+      })
+    )
+    // right
+    engine.add(
+      new ex.Actor({
+        collisionType: ex.CollisionType.Fixed,
+        x: worldBounds.width,
+        y: 0,
+        anchor: ex.vec(0, 0),
+        width: 32,
+        height: worldBounds.height,
       })
     )
 
