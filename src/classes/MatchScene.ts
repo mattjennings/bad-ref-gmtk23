@@ -150,14 +150,14 @@ export default class MatchScene extends ex.Scene {
           team: 'away',
           teamPosition: 'midfielder',
         }),
-        // new TeamPlayer({
-        //   team: 'away',
-        //   teamPosition: 'defender',
-        // }),
-        // new TeamPlayer({
-        //   team: 'away',
-        //   teamPosition: 'defender',
-        // }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
+        new TeamPlayer({
+          team: 'away',
+          teamPosition: 'defender',
+        }),
       ],
     }
 

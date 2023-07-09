@@ -29,7 +29,7 @@ const positionTemplates = {
   forward: {
     maxStamina: 50,
     moveSpeed: 70,
-    power: 3000,
+    power: 800,
   },
 }
 
@@ -214,10 +214,18 @@ export class TeamPlayer extends BasePlayer {
           }
           // kick ball towards net
           else {
-            this.kickBall(
-              this.getShotPosition(),
-              this.isSprinting ? this.power * 1.5 : this.power
-            )
+            let power = this.isSprinting ? this.power * 1.5 : this.power
+
+            // if forward and they're far from the net, double the power
+            if (this.teamPosition === 'forward') {
+              const distanceFromNet = this.pos.distance(this.getShotPosition())
+
+              if (distanceFromNet > 150) {
+                power *= 2
+              }
+            }
+
+            this.kickBall(this.getShotPosition(), power)
           }
         }
       }
