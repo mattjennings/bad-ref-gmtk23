@@ -1,13 +1,22 @@
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
-// I opted for prefixing all assets with type_name rather than
-// nesting but I'm find to nest them too. i.e assets.images.level1 etc
+
 export const assets = {
   img_field: new ex.ImageSource('maps/field.png'),
   img_ball: new ex.ImageSource('sprites/ball.png'),
-  img_ballShadow: new ex.ImageSource('sprites/ball_shadow.png'),
+  img_shadow: new ex.ImageSource('sprites/players/player_shadow.png'),
+  img_netLeftBack: new ex.ImageSource('sprites/net/net_left_back.png'),
+  img_netLeftFront: new ex.ImageSource('sprites/net/net_left_front.png'),
+  img_netRightBack: new ex.ImageSource('sprites/net/net_right_back.png'),
+  img_netRightFront: new ex.ImageSource('sprites/net/net_right_back.png'),
 
-  ase_playerRed: new AsepriteResource('sprites/players/C1_RED.json'),
-  ase_playerBlue: new AsepriteResource('sprites/players/C1_BLUE.json'),
+  ase_ballVertical: new AsepriteResource('sprites/ball/ball_vertical.json'),
+  ase_ballHorizontal: new AsepriteResource('sprites/ball/ball_horizontal.json'),
+  ase_character1Red: new AsepriteResource('sprites/players/C1_RED.json'),
+  ase_character2Red: new AsepriteResource('sprites/players/C2_RED.json'),
+  ase_character1Blue: new AsepriteResource('sprites/players/C1_BLUE.json'),
+  ase_character2Blue: new AsepriteResource('sprites/players/C2_BLUE.json'),
+  ase_goalieBlue: new AsepriteResource('sprites/players/GOALIE_BLUE.json'),
+  ase_goalieRed: new AsepriteResource('sprites/players/GOALIE_RED.json'),
 }
 
 class DevLoader extends ex.Loader {
