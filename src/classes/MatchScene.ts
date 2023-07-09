@@ -32,6 +32,8 @@ export default class MatchScene extends ex.Scene {
   lastPosession?: Team
   referee: Referee
 
+  song: ex.Sound
+
   gameHasStarted = false
   gameOver = false
 
@@ -39,6 +41,7 @@ export default class MatchScene extends ex.Scene {
   zones: Record<'left' | 'mid' | 'right', ex.BoundingBox>
 
   onInitialize(engine: ex.Engine): void {
+    this.playSong('intro')
     // add field
     const fieldSprite = assets.img_field.toSprite()
 
@@ -206,17 +209,32 @@ export default class MatchScene extends ex.Scene {
 
     this.add(new IcecreamTruck())
     this.on('goal', this.onGoal.bind(this))
-    assets.snd_crowdA.play()
+    assets.snd_crowdA.play(0.75)
   }
 
+  playSong(song: 'intro' | 'game') {
+    const intro = assets.sng_overtime2
+    const game = assets.sng_overtime1
+
+    if (song === 'intro' && !intro.isPlaying()) {
+      this.song?.stop()
+      this.song = intro
+      intro.play()
+    } else if (song === 'game' && !game.isPlaying()) {
+      this.song?.stop()
+      this.song = game
+      game.play()
+    }
+  }
   onGoal({ team }: { team: Team }) {
     this[team].score++
 
-    assets.snd_crowdA.play()
-    assets.snd_crowdBHigh.play()
-    assets.snd_crowdBLow.play()
+    assets.snd_crowdA.play(0.75)
+    assets.snd_crowdBHigh.play(0.75)
+    assets.snd_crowdBLow.play(0.75)
 
     if (this.home.score >= SCORE_TO_WIN) {
+      this.playSong('intro')
       let suspicionMessage = `Team Red didn't suspect a thing.`
 
       if (this.referee.suspicion > 30) {
@@ -233,6 +251,7 @@ export default class MatchScene extends ex.Scene {
         )
       )
     } else if (this.away.score >= SCORE_TO_WIN) {
+      this.playSong('intro')
       this.gameHasStarted = false
       this.gameOver = true
       this.engine.add(
@@ -252,6 +271,7 @@ export default class MatchScene extends ex.Scene {
       this.home.score = 0
       this.away.score = 0
     }
+    this.playSong('game')
     this.emit('start', {})
   }
 
@@ -281,6 +301,10 @@ export default class MatchScene extends ex.Scene {
   }
 
   onPreUpdate(_engine: Engine, _delta: number): void {
+    if (this.song && !this.song.isPlaying()) {
+      this.song.play()
+    }
+
     // ysort all actors
     const sorted = [...this.entities].sort((a, b) => {
       if (a instanceof Actor && b instanceof Actor) {

@@ -34,7 +34,7 @@ export class MessageBox extends ScreenElement {
 
     const bg = new ex.Rectangle({
       width: this.scene.camera.viewport.width,
-      height: this.scene.camera.viewport.height - this.pos.y,
+      height: this.scene.camera.viewport.height,
       color: ex.Color.Black,
     })
 

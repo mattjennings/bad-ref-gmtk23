@@ -105,7 +105,6 @@ export class BasePlayer extends ex.Actor {
     this.isPain = true
     this.isSprinting = false
     this.setAnimation('Pain')
-    assets.snd_dashB.play()
 
     this.vel = direction.scale(500)
   }
