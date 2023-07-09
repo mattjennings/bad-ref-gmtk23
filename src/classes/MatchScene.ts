@@ -1,7 +1,7 @@
 import { assets } from 'src/assets'
 import { Ball } from 'src/actors/ball'
 import { TeamPlayer } from 'src/actors/team-player'
-import { Actor, Engine } from 'excalibur'
+import { Actor, Engine, ScreenElement } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
 import { TeamGoalie } from 'src/actors/team-goalie'
 import { Net } from 'src/actors/net'
@@ -243,11 +243,11 @@ export default class MatchScene extends ex.Scene {
 
     // set zindex in order
     sorted.forEach((actor, i) => {
-      if (actor.name === 'field_image') {
+      if (actor.name === 'field_image' || actor instanceof ScreenElement) {
         return
       }
       if (actor instanceof Actor) {
-        actor.z = i
+        actor.z = i - 100
       }
     })
   }
