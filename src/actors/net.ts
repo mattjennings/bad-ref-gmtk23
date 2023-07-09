@@ -1,6 +1,7 @@
 import { Engine } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
+import { Ball } from './ball'
 
 export class Net extends ex.Actor {
   declare scene: MatchScene
@@ -32,8 +33,6 @@ export class Net extends ex.Actor {
     const y = Math.round(11 * 16 + anchorPxOffset)
     this.pos = ex.vec(x, y)
 
-    // add posts
-
     const topPost = this.pos.y - this.height * this.anchor.y + 60
     const bottomPost = this.pos.y
 
@@ -56,6 +55,7 @@ export class Net extends ex.Actor {
       bottomFront = ex.vec(this.pos.x + 12, bottomPost)
     }
 
+    // posts
     engine.add(
       new ex.Actor({
         name: 'posts',
@@ -76,5 +76,24 @@ export class Net extends ex.Actor {
         ]),
       })
     )
+
+    // goal line
+    const goalLine = new ex.Actor({
+      name: 'goalLine',
+      collisionType: ex.CollisionType.Passive,
+      collider: new ex.EdgeCollider({
+        begin: topFront.add(ex.vec(this.team === 'home' ? -20 : 20, 0)),
+        end: bottomFront.add(ex.vec(this.team === 'home' ? -20 : 20, 0)),
+      }),
+    })
+
+    goalLine.on('collisionstart', (ev) => {
+      if (ev.other instanceof Ball) {
+        this.scene.emit('goal', {
+          team: this.team === 'home' ? 'away' : 'home',
+        })
+      }
+    })
+    engine.add(goalLine)
   }
 }

@@ -1,6 +1,6 @@
 import { assets } from 'src/assets'
 import { Ball } from 'src/actors/ball'
-import { TeamPlayer } from 'src/actors/team-player'
+import { Team, TeamPlayer } from 'src/actors/team-player'
 import { Actor, Engine } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
 import { TeamGoalie } from 'src/actors/team-goalie'
@@ -20,23 +20,32 @@ export default class MatchScene extends ex.Scene {
     net: Net
   }
 
-  field: Actor
-
+  field: ex.BoundingBox
   zones: Record<'left' | 'mid' | 'right', ex.BoundingBox>
 
   onInitialize(engine: ex.Engine): void {
     // add field
-    const { width, height } = assets.img_field.toSprite()
-    this.field = new Sprite({
-      x: 0,
-      y: 0,
-      anchor: ex.Vector.Zero,
-      z: -100,
-      graphics: assets.img_field.toSprite(),
-      width,
-      height,
+    const fieldSprite = assets.img_field.toSprite()
+
+    engine.add(
+      new Sprite({
+        x: 0,
+        y: 0,
+        anchor: ex.Vector.Zero,
+        z: -100,
+        graphics: assets.img_field.toSprite(),
+        width: fieldSprite.width,
+        height: fieldSprite.height,
+      })
+    )
+
+    // the real bounds of the field
+    this.field = new ex.BoundingBox({
+      left: 38,
+      right: 825,
+      top: 24,
+      bottom: 323,
     })
-    engine.add(this.field)
 
     this.zones = {
       left: new ex.BoundingBox(0, 0, this.field.width / 3, this.field.height),
@@ -54,9 +63,8 @@ export default class MatchScene extends ex.Scene {
       ),
     }
     this.ball = new Ball({
-      x: Math.round(this.field.width / 2),
-      // x: 750,
-      y: Math.round(this.field.height / 2 - 32),
+      x: Math.round(this.field.width / 2) + 38,
+      y: Math.round(this.field.height / 2) + 8,
     })
 
     // create world bounds
@@ -156,10 +164,40 @@ export default class MatchScene extends ex.Scene {
     })
 
     // setup camera
+    const worldBounds = new ex.BoundingBox({
+      left: 0,
+      right: fieldSprite.width,
+      top: 0,
+      bottom: fieldSprite.height,
+    })
+
     this.camera.strategy.lockToActor(this.ball)
     this.camera.strategy.limitCameraBounds(
-      new ex.BoundingBox(0, 0, fieldWidth, fieldHeight)
+      new ex.BoundingBox(0, 0, worldBounds.right, worldBounds.bottom)
     )
+
+    this.on('goal', this.onGoal.bind(this))
+    setTimeout(() => this.emit('start', {}))
+  }
+
+  onGoal({ team }: { team: Team }) {
+    const posession = team === 'home' ? 'away' : 'home'
+    this.emit('reset', { posession })
+
+    this.ball.actions
+      .moveTo(
+        ex.vec(
+          Math.round(this.field.width / 2) +
+            38 +
+            (posession === 'home' ? -16 : 16),
+          Math.round(this.field.height / 2) + 8
+        ),
+        300
+      )
+      .toPromise()
+      .then(() => {
+        this.emit('start', {})
+      })
   }
 
   onPreUpdate(_engine: Engine, _delta: number): void {
