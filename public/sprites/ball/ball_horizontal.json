@@ -1,50 +1,53 @@
-{
-  "frames": {
-    "ball_horizontal 0.aseprite": {
-      "frame": { "x": 0, "y": 0, "w": 14, "h": 14 },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
-      "sourceSize": { "w": 14, "h": 14 },
-      "duration": 100
-    },
-    "ball_horizontal 1.aseprite": {
-      "frame": { "x": 14, "y": 0, "w": 14, "h": 14 },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
-      "sourceSize": { "w": 14, "h": 14 },
-      "duration": 100
-    },
-    "ball_horizontal 2.aseprite": {
-      "frame": { "x": 28, "y": 0, "w": 14, "h": 14 },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
-      "sourceSize": { "w": 14, "h": 14 },
-      "duration": 100
-    },
-    "ball_horizontal 3.aseprite": {
-      "frame": { "x": 42, "y": 0, "w": 14, "h": 14 },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
-      "sourceSize": { "w": 14, "h": 14 },
-      "duration": 100
-    }
-  },
-  "meta": {
-    "app": "https://www.aseprite.org/",
-    "version": "1.2.34.1-arm64",
-    "image": "ball_horizontal.png",
-    "format": "RGBA8888",
-    "size": { "w": 56, "h": 14 },
-    "scale": "1",
+
+{ "frames": {
+   "ball_horizontal 0.aseprite": {
+    "frame": { "x": 0, "y": 0, "w": 14, "h": 14 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
+    "sourceSize": { "w": 14, "h": 14 },
+    "duration": 100
+   },
+   "ball_horizontal 1.aseprite": {
+    "frame": { "x": 14, "y": 0, "w": 14, "h": 14 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
+    "sourceSize": { "w": 14, "h": 14 },
+    "duration": 100
+   },
+   "ball_horizontal 2.aseprite": {
+    "frame": { "x": 28, "y": 0, "w": 14, "h": 14 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
+    "sourceSize": { "w": 14, "h": 14 },
+    "duration": 100
+   },
+   "ball_horizontal 3.aseprite": {
+    "frame": { "x": 42, "y": 0, "w": 14, "h": 14 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 14, "h": 14 },
+    "sourceSize": { "w": 14, "h": 14 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.2.34.1-arm64",
+  "image": "ball_horizontal.png",
+  "format": "RGBA8888",
+  "size": { "w": 56, "h": 14 },
+  "scale": "1",
     "frameTags": [
       { "name": "RollRight", "from": 0, "to": 2, "direction": "forward" },
       { "name": "RollLeft", "from": 0, "to": 2, "direction": "reverse" }
     ],
-    "layers": [{ "name": "Layer 1", "opacity": 255, "blendMode": "normal" }],
-    "slices": []
-  }
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
 }
