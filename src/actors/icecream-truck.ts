@@ -16,6 +16,8 @@ export class IcecreamTruck extends ex.Actor {
   sprites = {
     hide: assets.ase_icecreamTruck.getSpriteSheet()?.getSprite(0, 0)!,
   }
+
+  initialPosition: ex.Vector
   constructor() {
     super({
       z: 1,
@@ -26,14 +28,16 @@ export class IcecreamTruck extends ex.Actor {
     })
 
     this.body.mass = 999999
-    this.graphics.use(this.animations.PopUp)
+    this.graphics.use(this.sprites.hide)
   }
 
   onInitialize(_engine: Engine): void {
-    this.pos = ex.vec(
-      this.scene.field.right - this.width / 2,
+    this.initialPosition = ex.vec(
+      this.scene.field.right - this.width / 2 - 80,
       this.scene.field.top + this.height + 4
     )
+
+    this.pos = this.initialPosition
 
     this.animations.PopUp.events.on('frame', (ev: any) => {
       const isLastFrame = this.animations.PopUp.frames[3].graphic === ev.graphic
@@ -49,18 +53,31 @@ export class IcecreamTruck extends ex.Actor {
   }
 
   update(engine: Engine, delta: number): void {
+    const distanceToRef = this.scene.referee.pos.distance(this.pos)
+
     const currentAnim = this.graphics.current[0]
 
-    if (this.hasIcecream && currentAnim.graphic !== this.animations.PopUp) {
-      this.animations.PopUp.goToFrame(0)
-      this.graphics.use(this.animations.PopUp)
-      this.animations.PopUp.play()
+    if (!this.isGivingIcecream) {
+      if (
+        this.hasIcecream &&
+        distanceToRef < 50 &&
+        currentAnim.graphic !== this.animations.PopUp
+      ) {
+        this.animations.PopUp.goToFrame(0)
+        this.graphics.use(this.animations.PopUp)
+        this.animations.PopUp.play()
+      } else if (
+        distanceToRef >= 50 &&
+        currentAnim.graphic === this.animations.PopUp
+      ) {
+        this.graphics.use(this.animations.PopDown)
+      }
     }
   }
 
   giveIcecream() {
-    const distractionTime = 10000
-    const restockTime = 30000
+    const distractionTime = 20000
+    const restockTime = 20000
 
     if (!this.isGivingIcecream && this.hasIcecream) {
       assets.snd_bell.play()
@@ -69,6 +86,7 @@ export class IcecreamTruck extends ex.Actor {
       this.graphics.use(this.animations.PopUp)
       this.animations.PopUp.play()
       this.scene.away.goalie.distract(this, distractionTime)
+
       this.actions
         .delay(distractionTime)
         .toPromise()
@@ -76,15 +94,11 @@ export class IcecreamTruck extends ex.Actor {
           this.isGivingIcecream = false
           this.graphics.use(this.animations.PopDown)
           this.actions
-            .moveTo(ex.vec(this.scene.field.right + 100, this.pos.y), 100)
             .delay(restockTime)
             .toPromise()
             .then(() => {
               this.hasIcecream = true
-              this.actions.moveTo(
-                ex.vec(this.scene.field.right - this.width / 2, this.pos.y),
-                100
-              )
+              assets.snd_watchOut.play()
             })
         })
     }

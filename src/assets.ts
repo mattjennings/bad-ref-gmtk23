@@ -51,6 +51,7 @@ export const assets = {
   snd_crowdBHigh: new ex.Sound('sfx/CrowdBHigh.mp3'),
   snd_crowdBLow: new ex.Sound('sfx/CrowdBLow.mp3'),
   snd_bell: new ex.Sound('sfx/Bell1.mp3'),
+  snd_watchOut: new ex.Sound('sfx/WatchOut.mp3'),
 }
 
 class DevLoader extends ex.Loader {

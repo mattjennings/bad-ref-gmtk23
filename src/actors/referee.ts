@@ -61,8 +61,7 @@ export class Referee extends BasePlayer {
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine)
     this.pos = ex.vec(
-      // Math.round(this.scene.field.width / 2),
-      this.scene.field.width - 100,
+      Math.round(this.scene.field.width / 2),
       Math.round(this.scene.field.height / 2) - 64
     )
 
@@ -159,9 +158,9 @@ export class Referee extends BasePlayer {
       ) as BasePlayer[]
 
       if (player) {
-        player.hit(player.pos.sub(this.pos).normalize())
+        player.scare(player.pos.sub(this.pos).normalize())
       } else {
-        assets.snd_dashA.play()
+        assets.snd_dashB.play()
       }
     }
   }

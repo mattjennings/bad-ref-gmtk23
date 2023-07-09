@@ -422,8 +422,8 @@ export class TeamPlayer extends BasePlayer {
     }
   }
 
-  hit(direction: Vector): void {
-    super.hit(direction)
+  scare(direction: Vector): void {
+    super.scare(direction)
     this.isKicking = false
   }
   trip() {

@@ -31,9 +31,8 @@ export class BasePlayer extends ex.Actor {
   constructor({ sprite, debug, team, ...args }: BasePlayerArgs) {
     super({
       width: 16,
-      height: 12,
+      height: 16,
       collisionType: ex.CollisionType.Active,
-      collider: ex.Shape.Box(16, 12, ex.vec(0.5, 1), ex.vec(0, 12)),
       ...args,
     })
     this.team = team
@@ -98,11 +97,11 @@ export class BasePlayer extends ex.Actor {
     this.vel = ex.vec(speed * Math.cos(angle), speed * Math.sin(angle))
   }
 
-  hit(direction: ex.Vector) {
+  scare(direction: ex.Vector) {
     this.isPain = true
     this.isSprinting = false
     this.setAnimation('Pain')
-    assets.snd_clack.play()
+    assets.snd_dashB.play()
 
     this.vel = direction.scale(500)
   }
