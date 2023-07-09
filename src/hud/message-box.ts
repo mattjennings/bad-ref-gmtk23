@@ -20,7 +20,7 @@ export class MessageBox extends ScreenElement {
   constructor(public message: string) {
     super({
       x: 0,
-      y: 142,
+      y: 160,
       z: 99999,
     })
   }
@@ -29,7 +29,7 @@ export class MessageBox extends ScreenElement {
     const text = new ex.Text({
       text: this.message,
       font: whiteFont,
-      scale: ex.vec(0.75, 0.75),
+      scale: ex.vec(0.5, 0.5),
     })
 
     const bg = new ex.Rectangle({

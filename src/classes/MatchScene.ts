@@ -12,7 +12,8 @@ import { Scoreboard } from '../hud/scoreboard'
 import { IcecreamTruck } from 'src/actors/icecream-truck'
 import { MessageBox } from 'src/hud/message-box'
 
-export const SCORE_TO_WIN = 5
+export const SCORE_TO_WIN = 3
+
 export default class MatchScene extends ex.Scene {
   ball: Ball
   home: {
@@ -193,7 +194,7 @@ export default class MatchScene extends ex.Scene {
     engine.add(new Scoreboard())
     engine.add(
       new MessageBox(
-        'You are a referee. Team Blue paid you to\nhelp them win. Do whatever it takes.\n\nPress Enter to start the game.'
+        'You are a referee. Team Blue paid you to help them win.\nDo whatever it takes, first to 3 goals wins.\n\nPress Enter to start the game.'
       )
     )
 
@@ -216,15 +217,29 @@ export default class MatchScene extends ex.Scene {
     assets.snd_crowdBLow.play()
 
     if (this.home.score >= SCORE_TO_WIN) {
+      let suspicionMessage = `Team Red didn't suspect a thing.`
+
+      if (this.referee.suspicion > 30) {
+        suspicionMessage = `Team Red was a little suspicious...`
+      } else if (this.referee.suspicion > 50) {
+        suspicionMessage = `Team Red is outraged, but you told them\nto deal with it.`
+      }
+
       this.gameHasStarted = false
       this.gameOver = true
       this.engine.add(
-        new MessageBox('Team Blue wins!\n\nPress Enter to play again.')
+        new MessageBox(
+          `Team Blue wins! ${suspicionMessage}\n\nPress Enter to play again.`
+        )
       )
     } else if (this.away.score >= SCORE_TO_WIN) {
       this.gameHasStarted = false
       this.gameOver = true
-      this.engine.add(new MessageBox('You lose.\n\nPress Enter to play again.'))
+      this.engine.add(
+        new MessageBox(
+          'Despite your antics, Team Blue lost.\n\nPress Enter to play again.'
+        )
+      )
     }
 
     this.reset()
