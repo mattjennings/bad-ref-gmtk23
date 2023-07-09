@@ -49,7 +49,7 @@ export class TeamGoalie extends BasePlayer {
   onCollisionStart(ev: ex.CollisionStartEvent) {
     if (ev.other instanceof Ball) {
       const ball = ev.other as Ball
-      const self = ev.actor as TeamGoalie
+
       ball.vel.x *= -1
       ball.vel.y *= -1
     }

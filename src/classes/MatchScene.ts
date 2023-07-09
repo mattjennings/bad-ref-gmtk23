@@ -189,10 +189,14 @@ export default class MatchScene extends ex.Scene {
     this.on('goal', this.onGoal.bind(this))
     setTimeout(() => {
       this.start()
+      assets.snd_crowdA.play()
     })
   }
 
   onGoal({ team }: { team: Team }) {
+    assets.snd_crowdA.play()
+    assets.snd_crowdBHigh.play()
+    assets.snd_crowdBLow.play()
     this.reset()
   }
 

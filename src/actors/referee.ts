@@ -39,6 +39,7 @@ export class Referee extends BasePlayer {
 
     this.animations.Punch.events.on('loop', () => {
       this.isPunching = false
+      this.isWhistling = false // you can sometimes get stuck if you punch and whistle, quick fix
     })
 
     this.animations.Whistle.events.on('loop', () => {
@@ -122,6 +123,8 @@ export class Referee extends BasePlayer {
 
     if (player) {
       player.hit(player.pos.sub(this.pos).normalize())
+    } else {
+      assets.snd_dashA.play()
     }
   }
 
@@ -133,6 +136,7 @@ export class Referee extends BasePlayer {
       assets.snd_whistle.play()
 
       if (reset) {
+        assets.snd_crowdBLow.play()
         this.scene.reset()
       }
     }

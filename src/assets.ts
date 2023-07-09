@@ -30,6 +30,11 @@ export const assets = {
   snd_clack: new ex.Sound('sfx/Clack.mp3'),
   snd_cleanImpact: new ex.Sound('sfx/CleanImpact.mp3'),
   snd_whistle: new ex.Sound('sfx/Whistle.mp3'),
+  snd_dashA: new ex.Sound('sfx/DashA.mp3'),
+  snd_dashB: new ex.Sound('sfx/DashB.mp3'),
+  snd_crowdA: new ex.Sound('sfx/CrowdA.mp3'),
+  snd_crowdBHigh: new ex.Sound('sfx/CrowdBHigh.mp3'),
+  snd_crowdBLow: new ex.Sound('sfx/CrowdBLow.mp3'),
 }
 
 class DevLoader extends ex.Loader {
