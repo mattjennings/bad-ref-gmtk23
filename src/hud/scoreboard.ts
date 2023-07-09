@@ -3,7 +3,6 @@ import { assets } from '../assets'
 import MatchScene from 'src/classes/MatchScene'
 
 class ScoreboardNumber extends ScreenElement {
-  score = 0
   team: string
   declare scene: MatchScene
 
@@ -13,19 +12,23 @@ class ScoreboardNumber extends ScreenElement {
       y,
     })
     this.team = team
-    this.graphics.use(assets.ase_scoreNumbers.getAnimation(String(this.score))!)
+    this.graphics.use(assets.ase_scoreNumbers.getAnimation(String(0))!)
   }
 
+  updateScore() {
+    this.graphics.use(
+      assets.ase_scoreNumbers.getAnimation(String(this.scene[this.team].score))!
+    )
+  }
   onInitialize() {
     this.scene.on('goal', (event: any) => {
       if (event.team === this.team) {
-        if (this.score < 9) {
-          this.score += 1
-        }
-        this.graphics.use(
-          assets.ase_scoreNumbers.getAnimation(String(this.score))!
-        )
+        this.updateScore()
       }
+    })
+
+    this.scene.on('start', () => {
+      this.updateScore()
     })
   }
 }

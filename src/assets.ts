@@ -2,7 +2,6 @@ import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
 
 export const assets = {
   img_field: new ex.ImageSource('maps/field.png'),
-  img_ball: new ex.ImageSource('sprites/ball.png'),
   img_shadow: new ex.ImageSource('sprites/players/player_shadow.png'),
   img_netLeftBack: new ex.ImageSource('sprites/net/net_left_back.png'),
   img_netLeftFront: new ex.ImageSource('sprites/net/net_left_front.png'),
@@ -17,6 +16,8 @@ export const assets = {
   img_redTeamBadge: new ex.ImageSource(
     'sprites/team_badges/red_team_badge.png'
   ),
+  img_fontWhite: new ex.ImageSource('sprites/font-white.png'),
+  img_fontBlack: new ex.ImageSource('sprites/font-black.png'),
 
   ase_ballVertical: new AsepriteResource('sprites/ball/ball_vertical.json'),
   ase_ballHorizontal: new AsepriteResource('sprites/ball/ball_horizontal.json'),
@@ -40,6 +41,12 @@ export const assets = {
   ),
   ase_icecreamTruck: new AsepriteResource(
     'sprites/ice_cream_truck/ice_cream_truck.json'
+  ),
+  ase_icecreamCone: new AsepriteResource(
+    'sprites/ice_cream_cone/ice_cream_cone.json'
+  ),
+  ase_collectCelebration: new AsepriteResource(
+    'sprites/collect_celebration/collect_celebration.json'
   ),
 
   snd_clack: new ex.Sound('sfx/Clack.mp3'),

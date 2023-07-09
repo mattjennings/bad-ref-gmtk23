@@ -1,6 +1,7 @@
 import { Engine } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
+import { Icecream } from './icecream'
 
 export class IcecreamTruck extends ex.Actor {
   declare scene: MatchScene
@@ -18,6 +19,9 @@ export class IcecreamTruck extends ex.Actor {
   }
 
   initialPosition: ex.Vector
+
+  icecreamCounter = 0
+
   constructor() {
     super({
       z: 1,
@@ -71,6 +75,18 @@ export class IcecreamTruck extends ex.Actor {
         currentAnim.graphic === this.animations.PopUp
       ) {
         this.graphics.use(this.animations.PopDown)
+      }
+    } else {
+      this.icecreamCounter += delta
+
+      if (this.icecreamCounter > 1000) {
+        this.icecreamCounter = 0
+        this.scene.add(
+          new Icecream({
+            z: this.z + 2,
+            pos: ex.vec(this.pos.x + (Math.random() - 0.5) * 40, this.pos.y),
+          })
+        )
       }
     }
   }

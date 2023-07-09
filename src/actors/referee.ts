@@ -19,6 +19,8 @@ export class Referee extends BasePlayer {
   directionQueue: DirectionQueue
   moveSpeed = 130
 
+  suspicion = 0
+
   constructor() {
     super({
       sprite: assets.ase_referee,
@@ -61,13 +63,21 @@ export class Referee extends BasePlayer {
 
     this.directionQueue = new DirectionQueue(controls)
 
-    this.scene.on('reset', () => {
-      this.blowWhistle(false)
+    this.scene.on('goal', () => {
+      this.blowWhistle()
     })
   }
 
   update(engine: Engine, delta: number): void {
     this.directionQueue.update(engine)
+    if (engine.input.keyboard.wasPressed(controls.whistle)) {
+      this.blowWhistle()
+      this.resetGame()
+    }
+
+    if (!this.scene.gameHasStarted) {
+      return
+    }
 
     if (engine.input.keyboard.wasPressed(controls.context)) {
       const icecreamTruck = this.scene.entities.find((entity) => {
@@ -88,10 +98,6 @@ export class Referee extends BasePlayer {
       } else {
         this.punch()
       }
-    }
-
-    if (engine.input.keyboard.wasPressed(controls.whistle)) {
-      this.blowWhistle()
     }
 
     if (
@@ -138,6 +144,7 @@ export class Referee extends BasePlayer {
       )
 
       if (successful) {
+        this.suspicion += 1
         this.setAnimation('Kick')
       }
     }
@@ -148,31 +155,38 @@ export class Referee extends BasePlayer {
       this.setAnimation('Punch')
       this.vel = ex.vec(0, 0)
 
-      const [player] = this.scene.entities.filter(
+      const nearbyPlayers = this.scene.entities.filter(
         (entity) =>
           entity !== this &&
           entity instanceof BasePlayer &&
           entity.pos.distance(this.pos) < 30
       ) as BasePlayer[]
 
-      if (player) {
-        player.scare(player.pos.sub(this.pos).normalize())
+      if (nearbyPlayers.length) {
+        this.suspicion += nearbyPlayers.length * 0.1
+        nearbyPlayers.forEach((player) => {
+          player.scare(player.pos.sub(this.pos).normalize())
+        })
       } else {
         assets.snd_dashB.play()
       }
     }
   }
 
-  blowWhistle(reset = true) {
+  resetGame() {
+    if (this.scene.gameHasStarted === true) {
+      this.suspicion += 1
+    }
+    assets.snd_crowdBLow.play()
+    this.scene.reset()
+    this.scene.gameHasStarted = true
+  }
+
+  blowWhistle() {
     if (!this.isAnimation('Whistle')) {
       this.setAnimation('Whistle')
       this.vel = ex.vec(0, 0)
       assets.snd_whistle.play()
-
-      if (reset) {
-        assets.snd_crowdBLow.play()
-        this.scene.reset()
-      }
     }
   }
 }

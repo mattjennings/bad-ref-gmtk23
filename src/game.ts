@@ -27,3 +27,12 @@ ex.Physics.useRealisticPhysics()
 // game.showDebug(true)
 // @ts-ignore
 window.showDebug = game.showDebug.bind(game)
+
+// pause when window is not focused
+window.addEventListener('blur', () => {
+  game.stop()
+})
+
+window.addEventListener('focus', () => {
+  game.start()
+})
