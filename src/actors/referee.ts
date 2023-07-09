@@ -148,15 +148,17 @@ export class Referee extends BasePlayer {
       this.setAnimation('Punch')
       this.vel = ex.vec(0, 0)
 
-      const [player] = this.scene.entities.filter(
+      const nearbyPlayers = this.scene.entities.filter(
         (entity) =>
           entity !== this &&
           entity instanceof BasePlayer &&
           entity.pos.distance(this.pos) < 30
       ) as BasePlayer[]
 
-      if (player) {
-        player.scare(player.pos.sub(this.pos).normalize())
+      if (nearbyPlayers.length) {
+        nearbyPlayers.forEach((player) => {
+          player.scare(player.pos.sub(this.pos).normalize())
+        })
       } else {
         assets.snd_dashB.play()
       }
