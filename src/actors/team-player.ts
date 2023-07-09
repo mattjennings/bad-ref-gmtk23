@@ -17,19 +17,19 @@ const sprites = {
 const positionTemplates = {
   defender: {
     maxStamina: 150,
-    moveSpeed: 50,
+    moveSpeed: 60,
     power: 1000,
     canLeaveZone: false,
   },
   midfielder: {
     maxStamina: 100,
-    moveSpeed: 50,
+    moveSpeed: 60,
     power: 700,
   },
   forward: {
     maxStamina: 50,
-    moveSpeed: 60,
-    power: 1000,
+    moveSpeed: 70,
+    power: 800,
   },
 }
 
@@ -53,9 +53,11 @@ export class TeamPlayer extends BasePlayer {
 
   zones: Record<string, ex.BoundingBox>
   canLeaveZone = true
-  isSprinting = false
 
   debug = false
+  isResetting = true
+  isSprinting = false
+  isPain = false
 
   constructor({ team, teamPosition, debug, ...args }: TeamPlayerArgs) {
     super({
@@ -81,20 +83,8 @@ export class TeamPlayer extends BasePlayer {
 
   onInitialize(_engine: Engine): void {
     super.onInitialize(_engine)
-    const zone = this.getPositionZone()
 
-    this.pos =
-      this.team === 'home'
-        ? ex.vec(zone.left + zone.width / 3, zone.center.y - 32)
-        : ex.vec(zone.right - zone.width / 3, zone.center.y - 32)
-
-    const teammateOfSamePosition = this.getTeammateOfSamePosition()
-
-    if (teammateOfSamePosition) {
-      teammateOfSamePosition.pos.y = zone.center.y - zone.center.y / 3
-
-      this.pos.y = zone.center.y + zone.center.y / 3
-    }
+    this.pos = this.getStartingPosition()
 
     this.scene.on('postdraw', ({ ctx }) => {
       const toScreenBounds = (bounds: ex.BoundingBox) => {
@@ -127,103 +117,131 @@ export class TeamPlayer extends BasePlayer {
         )
       }
     })
-    // this.addChild(
-    //   new ex.Label({
-    //     text: this.teamPosition,
-    //     color: ex.Color.White,
-    //     x: -20,
-    //     y: 20,
-    //   })
-    // )
+
+    this.scene.on('reset', () => {
+      this.isResetting = true
+      this.actions.moveTo(this.getStartingPosition(), 300)
+    })
+
+    this.scene.on('start', () => {
+      this.isResetting = false
+    })
+
+    let isPainCount = 0
+    this.animations.Pain.events.on('loop', (a) => {
+      isPainCount++
+
+      if (isPainCount > 3) {
+        this.isPain = false
+        isPainCount = 0
+      }
+    })
   }
 
   update(engine: Engine, delta: number): void {
-    // move towards ball
-    const ball = this.scene.ball
-    const ballDistance = this.pos.distance(ball.pos)
-    const zone = this.getPositionZone()
-    const isClosestTeammateToBall = this.scene.entities.reduce(
-      (closest, entity) => {
-        if (
-          entity instanceof TeamPlayer &&
-          entity.team === this.team &&
-          entity !== this
-        ) {
-          const teammateDistance = entity.pos.distance(ball.pos)
-          const isCloser = teammateDistance <= ballDistance
+    if (this.isPain) {
+      this.vel = this.vel.scale(0.9)
+      return
+    }
+    if (!this.isResetting) {
+      // move towards ball
+      const ball = this.scene.ball
+      const ballDistance = this.pos.distance(ball.pos)
+      const zone = this.getPositionZone()
+      const isClosestTeammateToBall = this.scene.entities.reduce(
+        (closest, entity) => {
+          if (
+            entity instanceof TeamPlayer &&
+            entity.team === this.team &&
+            entity !== this
+          ) {
+            const teammateDistance = entity.pos.distance(ball.pos)
+            const isCloser = teammateDistance <= ballDistance
 
-          if (isCloser) {
-            return false
+            if (isCloser) {
+              return false
+            }
           }
-        }
 
-        return closest
-      },
-      true
-    )
-    const isBallInZone = zone.contains(ball.pos)
-
-    const chaseBall = () => {
-      const speedFactor = this.isSprinting
-        ? 1.25
-        : this.stamina < this.maxStamina
-        ? 0.85
-        : 1
-
-      this.moveTo(
-        ex.vec(ball.pos.x, ball.pos.y - ball.height / 2),
-        this.moveSpeed * speedFactor
+          return closest
+        },
+        true
       )
-      if (ballDistance < 200) {
-        this.sprint()
-      }
-    }
+      const isBallInZone = zone.contains(ball.pos)
 
-    // move towards ball if far enough
-    if (isBallInZone || (this.canLeaveZone && isClosestTeammateToBall)) {
-      chaseBall()
-    } else {
-      // move to edge of zone closes to ball
-      const x = ball.pos.x < zone.center.x ? zone.left : zone.right
+      const chaseBall = () => {
+        const speedFactor = this.isSprinting
+          ? 1.25
+          : this.stamina < this.maxStamina
+          ? 0.85
+          : 1
 
-      const teammateOfSamePosition = this.getTeammateOfSamePosition()
-
-      if (teammateOfSamePosition) {
-        const isTop =
-          teammateOfSamePosition.pos.y === this.pos.y
-            ? teammateOfSamePosition.id < this.id
-            : teammateOfSamePosition.pos.y > this.pos.y
-        const y = isTop
-          ? zone.center.y - zone.center.y / 3
-          : zone.center.y + zone.center.y / 3
-
-        this.moveTo(ex.vec(x, y), this.moveSpeed)
-      } else {
-        const y = ball.pos.y
-        this.moveTo(ex.vec(x, y), this.moveSpeed)
-      }
-    }
-
-    // kick ball if close enough
-    if (ballDistance < 10) {
-      if (this.teamPosition === 'defender') {
-        this.clearBall()
-      } else {
-        // kick back out infront of net
-        if (this.isBehindOpposingNet()) {
-          const center = this.team === 'home' ? -150 : 150
-
-          this.kickBall(
-            ex.vec(this.getShotPosition().x + center, this.getShotPosition().y),
-            this.power * 0.5
-          )
+        this.moveTo(
+          ex.vec(ball.pos.x, ball.pos.y - ball.height / 2),
+          this.moveSpeed * speedFactor
+        )
+        if (ballDistance < 200) {
+          this.sprint()
         }
-        // kick ball towards net
-        else {
-          this.kickBall(
-            this.getShotPosition(),
-            this.isSprinting ? this.power * 1.5 : this.power
-          )
+      }
+
+      // move towards ball if far enough
+      if (isBallInZone || (this.canLeaveZone && isClosestTeammateToBall)) {
+        chaseBall()
+      } else {
+        // move to edge of zone closes to ball
+        const x = ball.pos.x < zone.center.x ? zone.left : zone.right
+
+        const teammateOfSamePosition = this.getTeammateOfSamePosition()
+
+        if (teammateOfSamePosition) {
+          const isTop =
+            teammateOfSamePosition.pos.y === this.pos.y
+              ? teammateOfSamePosition.id < this.id
+              : teammateOfSamePosition.pos.y > this.pos.y
+          const y = isTop
+            ? zone.center.y - zone.center.y / 3
+            : zone.center.y + zone.center.y / 3
+
+          this.moveTo(this.getStartingPosition(), this.moveSpeed)
+        } else {
+          const y = ball.pos.y
+          this.moveTo(ex.vec(x, y), this.moveSpeed)
+        }
+      }
+
+      // kick ball if close enough
+      if (ballDistance < 10) {
+        if (this.teamPosition === 'defender') {
+          this.clearBall()
+        } else {
+          // kick back out infront of net
+          if (this.isBehindOpposingNet()) {
+            const center = this.team === 'home' ? -150 : 150
+
+            this.kickBall(
+              ex.vec(
+                this.getShotPosition().x + center,
+                this.getShotPosition().y
+              ),
+              this.power * 0.5
+            )
+          }
+          // kick ball towards net
+          else {
+            let power = this.isSprinting ? this.power * 1.5 : this.power
+
+            // if forward and they're far from the net, double the power
+            if (this.teamPosition === 'forward') {
+              const distanceFromNet = this.pos.distance(this.getShotPosition())
+
+              if (distanceFromNet > 150) {
+                power *= 2
+              }
+            }
+
+            this.kickBall(this.getShotPosition(), power)
+          }
         }
       }
     }
@@ -247,13 +265,37 @@ export class TeamPlayer extends BasePlayer {
       this.currentGraphic().flipHorizontal = this.vel.x < 0
     } else {
       this.setAnimation('Idle')
+
+      this.currentGraphic().flipHorizontal = this.scene.ball.pos.x < this.pos.x
     }
+  }
+
+  getStartingPosition() {
+    const zone = this.getPositionZone()
+    let pos =
+      this.team === 'home'
+        ? ex.vec(zone.left + 36 + zone.width / 3, zone.center.y)
+        : ex.vec(zone.right + 36 - zone.width / 3, zone.center.y)
+
+    const teammateOfSamePosition = this.getTeammateOfSamePosition()
+
+    if (teammateOfSamePosition) {
+      const isTop = teammateOfSamePosition.id < this.id
+
+      if (isTop) {
+        pos.y = zone.center.y - zone.center.y / 3
+      } else {
+        pos.y = zone.center.y + zone.center.y / 3
+      }
+    }
+
+    return pos
   }
 
   isBehindOpposingNet() {
     if (this.team === 'home') {
       const net = this.scene.away.net
-      return this.pos.x + this.width > net.pos.x - net.width
+      return this.pos.x + this.width > net.pos.x
     } else {
       const net = this.scene.home.net
       return this.pos.x - this.width < net.pos.x + net.width
@@ -351,11 +393,37 @@ export class TeamPlayer extends BasePlayer {
 
   moveTo(pos: Vector, speed: number): void {
     const distance = this.pos.distance(pos)
+    const refereeDistance = this.pos.distance(this.scene.referee.pos)
 
     if (distance > 1) {
+      if (refereeDistance < 10) {
+        speed *= 0.4
+      }
       super.moveTo(pos, speed)
     } else {
       this.vel = ex.vec(0, 0)
     }
+  }
+
+  hit() {
+    this.isPain = true
+    this.isSprinting = false
+    this.stamina = 0
+    this.setAnimation('Pain')
+
+    // git hit in random direction
+    const angle = random.pickOne([0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
+
+    this.vel = ex.vec(500 * Math.cos(angle), 500 * Math.sin(angle))
+  }
+
+  trip() {
+    // this.isPain = true
+    // this.isSprinting = false
+    // this.stamina = 0
+    // this.setAnimation('Trip')
+    // // git hit in random direction
+    // const angle = random.pickOne([0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2])
+    // this.vel = ex.vec(300 * Math.cos(angle), 300 * Math.sin(angle))
   }
 }

@@ -34,18 +34,20 @@ export class Ball extends ex.Actor {
       shadowSprite.draw(ctx, -12, -16)
     }
 
-    _engine.input.keyboard.on('press', (ev) => {
-      const power = 200
-      if (ev.key === ex.Input.Keys.Left) {
-        this.kick(ex.Vector.Left.scale(power), true)
-      } else if (ev.key === ex.Input.Keys.Right) {
-        this.kick(ex.Vector.Right.scale(power), true)
-      } else if (ev.key === ex.Input.Keys.Up) {
-        this.kick(ex.Vector.Up.scale(power), true)
-      } else if (ev.key === ex.Input.Keys.Down) {
-        this.kick(ex.Vector.Down.scale(power), true)
-      }
-    })
+    if (import.meta.env.DEV || globalThis.controlBall === true) {
+      _engine.input.keyboard.on('press', (ev) => {
+        const power = 200
+        if (ev.key === ex.Input.Keys.Left) {
+          this.kick(ex.Vector.Left.scale(power), true)
+        } else if (ev.key === ex.Input.Keys.Right) {
+          this.kick(ex.Vector.Right.scale(power), true)
+        } else if (ev.key === ex.Input.Keys.Up) {
+          this.kick(ex.Vector.Up.scale(power), true)
+        } else if (ev.key === ex.Input.Keys.Down) {
+          this.kick(ex.Vector.Down.scale(power), true)
+        }
+      })
+    }
 
     // _engine.input.pointers.on('down', (ev) => {
     //   this.pos = ev.worldPos
