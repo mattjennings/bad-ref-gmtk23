@@ -163,7 +163,7 @@ export class Referee extends BasePlayer {
       ) as BasePlayer[]
 
       if (nearbyPlayers.length) {
-        this.suspicion += nearbyPlayers.length * 0.1
+        this.suspicion += nearbyPlayers.length * 0.5
         nearbyPlayers.forEach((player) => {
           player.scare(player.pos.sub(this.pos).normalize())
         })
