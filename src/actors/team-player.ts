@@ -271,7 +271,7 @@ export class TeamPlayer extends BasePlayer {
   isBehindOpposingNet() {
     if (this.team === 'home') {
       const net = this.scene.away.net
-      return this.pos.x + this.width > net.pos.x - net.width
+      return this.pos.x + this.width > net.pos.x
     } else {
       const net = this.scene.home.net
       return this.pos.x - this.width < net.pos.x + net.width

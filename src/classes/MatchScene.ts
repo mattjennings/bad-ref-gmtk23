@@ -38,6 +38,12 @@ export default class MatchScene extends ex.Scene {
         height: fieldSprite.height,
       })
     )
+    const worldBounds = new ex.BoundingBox({
+      left: 0,
+      right: fieldSprite.width,
+      top: 0,
+      bottom: fieldSprite.height,
+    })
 
     // the real bounds of the field
     this.field = new ex.BoundingBox({
@@ -67,27 +73,30 @@ export default class MatchScene extends ex.Scene {
       y: Math.round(this.field.height / 2) + 8,
     })
 
-    // create world bounds
-    const fieldHeight = this.field.height
-    const fieldWidth = this.field.width
     engine.add(
       new ex.Actor({
         collisionType: ex.CollisionType.Fixed,
         collider: new ex.CompositeCollider([
+          // left
           new ex.EdgeCollider({
-            begin: ex.vec(0, 0),
-            end: ex.vec(0, fieldHeight),
+            begin: ex.vec(16, 0),
+            end: ex.vec(16, worldBounds.bottom),
           }),
+
+          // bottom
           new ex.EdgeCollider({
-            begin: ex.vec(0, fieldHeight),
-            end: ex.vec(fieldWidth, fieldHeight),
+            begin: ex.vec(16, worldBounds.bottom),
+            end: ex.vec(worldBounds.width - 16, worldBounds.height),
           }),
+
+          // right
           new ex.EdgeCollider({
-            begin: ex.vec(fieldWidth, fieldHeight),
-            end: ex.vec(fieldWidth, 0),
+            begin: ex.vec(worldBounds.width - 16, worldBounds.height),
+            end: ex.vec(worldBounds.width - 16, 0),
           }),
+          // top
           new ex.EdgeCollider({
-            begin: ex.vec(fieldWidth, 0),
+            begin: ex.vec(worldBounds.width - 16, 0),
             end: ex.vec(0, 0),
           }),
         ]),
@@ -141,14 +150,14 @@ export default class MatchScene extends ex.Scene {
           team: 'away',
           teamPosition: 'midfielder',
         }),
-        new TeamPlayer({
-          team: 'away',
-          teamPosition: 'defender',
-        }),
-        new TeamPlayer({
-          team: 'away',
-          teamPosition: 'defender',
-        }),
+        // new TeamPlayer({
+        //   team: 'away',
+        //   teamPosition: 'defender',
+        // }),
+        // new TeamPlayer({
+        //   team: 'away',
+        //   teamPosition: 'defender',
+        // }),
       ],
     }
 
@@ -164,13 +173,6 @@ export default class MatchScene extends ex.Scene {
     })
 
     // setup camera
-    const worldBounds = new ex.BoundingBox({
-      left: 0,
-      right: fieldSprite.width,
-      top: 0,
-      bottom: fieldSprite.height,
-    })
-
     this.camera.strategy.lockToActor(this.ball)
     this.camera.strategy.limitCameraBounds(
       new ex.BoundingBox(0, 0, worldBounds.right, worldBounds.bottom)
