@@ -82,8 +82,8 @@ export class Net extends ex.Actor {
       name: 'goalLine',
       collisionType: ex.CollisionType.Passive,
       collider: new ex.EdgeCollider({
-        begin: topFront.add(ex.vec(this.team === 'home' ? -20 : 15, 0)),
-        end: bottomFront.add(ex.vec(this.team === 'home' ? -20 : 15, 0)),
+        begin: topFront.add(ex.vec(this.team === 'home' ? -12 : 12, 0)),
+        end: bottomFront.add(ex.vec(this.team === 'home' ? -12 : 12, 0)),
       }),
     })
 

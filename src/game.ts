@@ -7,7 +7,10 @@ import { DevTool } from '@excaliburjs/dev-tools'
 const game = new ex.Engine({
   canvasElementId: 'game',
   displayMode: ex.DisplayMode.FitScreen,
-  resolution: ex.Resolution.GameBoyAdvance,
+  resolution: {
+    width: 320,
+    height: 197,
+  },
   antialiasing: false,
 })
 

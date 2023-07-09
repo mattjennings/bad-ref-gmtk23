@@ -2,16 +2,29 @@ import { Animation, Engine, Vector } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
-import { BasePlayer, BasePlayerArgs } from './base-player'
+import { BasePlayer, BasePlayerArgs, Team } from './base-player'
 
-export type Team = 'home' | 'away'
 export type TeamPosition = 'defender' | 'midfielder' | 'forward'
 
 const random = new ex.Random()
 
 const sprites = {
-  home: [assets.ase_character1Blue, assets.ase_character2Blue],
-  away: [assets.ase_character1Red, assets.ase_character2Red],
+  home: [
+    assets.ase_character1Blue,
+    assets.ase_character2Blue,
+    assets.ase_character3Blue,
+    assets.ase_character4Blue,
+    assets.ase_character5Blue,
+    assets.ase_character6Blue,
+  ],
+  away: [
+    assets.ase_character1Red,
+    assets.ase_character2Red,
+    assets.ase_character3Red,
+    assets.ase_character4Red,
+    assets.ase_character5Red,
+    assets.ase_character6Red,
+  ],
 }
 
 const positionTemplates = {
@@ -58,6 +71,7 @@ export class TeamPlayer extends BasePlayer {
   isResetting = true
   isSprinting = false
   isPain = false
+  isKicking = false
 
   constructor({ team, teamPosition, debug, ...args }: TeamPlayerArgs) {
     super({
@@ -120,11 +134,17 @@ export class TeamPlayer extends BasePlayer {
 
     this.scene.on('reset', () => {
       this.isResetting = true
+      this.isKicking = false
       this.actions.moveTo(this.getStartingPosition(), 300)
     })
 
     this.scene.on('start', () => {
       this.isResetting = false
+    })
+
+    this.animations.Kick.events.on('loop', () => {
+      this.isKicking = false
+      this.setAnimation('Idle')
     })
   }
 
@@ -133,7 +153,8 @@ export class TeamPlayer extends BasePlayer {
       this.vel = this.vel.scale(0.9)
       return
     }
-    if (!this.isResetting) {
+
+    if (!this.isKicking && !this.isResetting) {
       // move towards ball
       const ball = this.scene.ball
       const ballDistance = this.pos.distance(ball.pos)
@@ -250,13 +271,16 @@ export class TeamPlayer extends BasePlayer {
     }
 
     // animation
-    if (this.vel.x !== 0) {
-      this.setAnimation('Run')
-      this.currentGraphic().flipHorizontal = this.vel.x < 0
-    } else {
-      this.setAnimation('Idle')
+    if (!this.isKicking) {
+      if (this.vel.x !== 0) {
+        this.setAnimation('Run')
+        this.currentGraphic().flipHorizontal = this.vel.x < 0
+      } else {
+        this.setAnimation('Idle')
 
-      this.currentGraphic().flipHorizontal = this.scene.ball.pos.x < this.pos.x
+        this.currentGraphic().flipHorizontal =
+          this.scene.ball.pos.x < this.pos.x
+      }
     }
   }
 
@@ -293,30 +317,25 @@ export class TeamPlayer extends BasePlayer {
   }
 
   kickBall(direction: ex.Vector, power = this.power) {
-    // kickBall() gets called every frame, so setting a 10% chance of kicking
-    // actually leads to some decent results
-    const success = true // Math.random() > 0.9
-
-    const magnitude = (vec: ex.Vector) =>
-      Math.sqrt(Math.pow(vec.x, 2) + Math.pow(vec.y, 2))
-
-    // if ball is moving too fast, don't kick it
-    if (magnitude(this.scene.ball.vel) > 50) {
-      return
-    }
-
-    if (success) {
+    if (!this.isKicking) {
       const angle = direction.sub(this.scene.ball.pos).toAngle()
 
       // kick towards net with some random accuracy
-      this.scene.ball.kick(
+      const successful = this.scene.ball.kick(
         ex.vec(power * Math.cos(angle), power * Math.sin(angle))
       )
 
-      // if defender, stop sprinting after kicking so they dont burn stamina
-      // which would give an advantage to the attacker
-      if (this.teamPosition === 'defender') {
-        this.isSprinting = false
+      if (successful) {
+        this.currentGraphic().flipHorizontal = direction.x < 0 ? true : false
+        this.isKicking = true
+        this.setAnimation('Kick')
+        this.vel = ex.vec(0, 0)
+
+        // if defender, stop sprinting after kicking so they dont burn stamina
+        // which would give an advantage to the attacker
+        if (this.teamPosition === 'defender') {
+          this.isSprinting = false
+        }
       }
     }
   }
@@ -387,7 +406,7 @@ export class TeamPlayer extends BasePlayer {
 
     if (distance > 1) {
       if (refereeDistance < 10) {
-        speed *= 0.4
+        speed *= 0.2
       }
       super.moveTo(pos, speed)
     } else {
@@ -395,6 +414,10 @@ export class TeamPlayer extends BasePlayer {
     }
   }
 
+  hit(direction: Vector): void {
+    super.hit(direction)
+    this.isKicking = false
+  }
   trip() {
     // this.isPain = true
     // this.isSprinting = false

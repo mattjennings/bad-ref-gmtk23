@@ -20,12 +20,15 @@ export class Referee extends BasePlayer {
 
   isPunching = false
   isWhistling = false
+  isKicking = false
 
   constructor() {
     super({
       sprite: assets.ase_referee,
       collisionType: ex.CollisionType.Active,
     })
+
+    this.body.mass = 2000
 
     this.animations.Punch = this.sprite.getAnimation('Punch')!
     this.animations.RedCard = this.sprite.getAnimation('RedCard')!
@@ -37,28 +40,34 @@ export class Referee extends BasePlayer {
 
     this.animations.Punch.events.on('loop', () => {
       this.isPunching = false
+      this.isWhistling = false // you can sometimes get stuck if you punch and whistle, quick fix
     })
 
     this.animations.Whistle.events.on('loop', () => {
       this.isWhistling = false
+      this.isPunching = false
+    })
+
+    this.animations.RedCard.events.on('loop', () => {
+      this.isWhistling = false
+    })
+
+    this.animations.Kick.events.on('loop', () => {
+      this.isKicking = false
     })
   }
 
   onInitialize(_engine: Engine): void {
+    super.onInitialize(_engine)
     this.pos = ex.vec(
       Math.round(this.scene.field.width / 2) + 38,
-      Math.round(this.scene.field.height / 2) + 8
+      Math.round(this.scene.field.height / 2) - 24
     )
 
     this.directionQueue = new DirectionQueue(controls)
 
     this.scene.on('reset', () => {
-      this.blowWhistle()
-    })
-
-    this.scene.on('start', () => {
-      this.isPunching = false
-      this.isWhistling = false
+      this.blowWhistle(false)
     })
   }
 
@@ -86,14 +95,16 @@ export class Referee extends BasePlayer {
         isDownHeld ? this.moveSpeed : isUpHeld ? -this.moveSpeed : 0
       )
 
-      if (this.vel.x !== 0 || this.vel.y !== 0) {
-        this.setAnimation('Run')
+      if (!this.isKicking) {
+        if (this.vel.x !== 0 || this.vel.y !== 0) {
+          this.setAnimation('Run')
 
-        if (this.vel.x !== 0) {
-          this.currentGraphic().flipHorizontal = this.vel.x < 0
+          if (this.vel.x !== 0) {
+            this.currentGraphic().flipHorizontal = this.vel.x < 0
+          }
+        } else {
+          this.setAnimation('Idle')
         }
-      } else {
-        this.setAnimation('Idle')
       }
     }
   }
@@ -105,31 +116,50 @@ export class Referee extends BasePlayer {
   }
 
   kickBall() {
-    this.scene.ball.kick(
-      this.scene.ball.pos.sub(this.pos).normalize().scale(500)
-    )
-  }
+    if (!this.isWhistling) {
+      const successful = this.scene.ball.kick(
+        this.scene.ball.pos.sub(this.pos).normalize().scale(500)
+      )
 
-  punch() {
-    this.isPunching = true
-    this.setAnimation('Punch')
-    this.vel = ex.vec(0, 0)
-
-    const [player] = this.scene.entities.filter(
-      (entity) =>
-        entity !== this &&
-        entity instanceof BasePlayer &&
-        entity.pos.distance(this.pos) < 20
-    ) as BasePlayer[]
-
-    if (player) {
-      player.hit(player.pos.sub(this.pos).normalize())
+      if (successful) {
+        this.isKicking = true
+        this.setAnimation('Kick')
+      }
     }
   }
 
-  blowWhistle() {
-    this.isWhistling = true
-    this.setAnimation('Whistle')
-    this.vel = ex.vec(0, 0)
+  punch() {
+    if (!this.isWhistling) {
+      this.isPunching = true
+      this.setAnimation('Punch')
+      this.vel = ex.vec(0, 0)
+
+      const [player] = this.scene.entities.filter(
+        (entity) =>
+          entity !== this &&
+          entity instanceof BasePlayer &&
+          entity.pos.distance(this.pos) < 20
+      ) as BasePlayer[]
+
+      if (player) {
+        player.hit(player.pos.sub(this.pos).normalize())
+      } else {
+        assets.snd_dashA.play()
+      }
+    }
+  }
+
+  blowWhistle(reset = true) {
+    if (!this.isWhistling) {
+      this.isWhistling = true
+      this.setAnimation('Whistle')
+      this.vel = ex.vec(0, 0)
+      assets.snd_whistle.play()
+
+      if (reset) {
+        assets.snd_crowdBLow.play()
+        this.scene.reset()
+      }
+    }
   }
 }

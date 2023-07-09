@@ -47,12 +47,13 @@ export class Ball extends ex.Actor {
           this.kick(ex.Vector.Down.scale(power), true)
         }
       })
-    }
 
-    // _engine.input.pointers.on('down', (ev) => {
-    //   this.pos = ev.worldPos
-    //   console.log('moved to', this.pos)
-    // })
+      _engine.input.pointers.on('down', (ev) => {
+        this.pos = ev.worldPos
+        this.vel = ex.vec(0, 0)
+        console.log('moved to', this.pos)
+      })
+    }
   }
 
   /**
@@ -62,12 +63,12 @@ export class Ball extends ex.Actor {
   kick(vel: ex.Vector, force = false) {
     if (force || this.kickThrottle === 0) {
       this.kickThrottle = this.kickThrottleMax
-      // scale down y velocity to account for perspective
-      vel.y *= 0.6
 
       assets.snd_cleanImpact.play()
       this.vel = this.vel.add(vel)
+      return true
     }
+    return false
   }
 
   update(engine: Engine, delta: number): void {

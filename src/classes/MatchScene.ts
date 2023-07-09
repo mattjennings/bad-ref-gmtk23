@@ -1,18 +1,18 @@
 import { assets } from 'src/assets'
 import { Ball } from 'src/actors/ball'
-import { Team, TeamPlayer } from 'src/actors/team-player'
+import { TeamPlayer } from 'src/actors/team-player'
 import { Actor, Engine } from 'excalibur'
 import { Sprite } from 'src/actors/sprite'
 import { TeamGoalie } from 'src/actors/team-goalie'
 import { Net } from 'src/actors/net'
 import { Referee } from 'src/actors/referee'
+import { Team } from 'src/actors/base-player'
 
 export default class MatchScene extends ex.Scene {
   ball: Ball
   home: {
     players: TeamPlayer[]
     goalie: TeamGoalie
-    // goalie: TeamGoalie
     net: Net
   }
   away: {
@@ -20,6 +20,8 @@ export default class MatchScene extends ex.Scene {
     goalie: TeamGoalie
     net: Net
   }
+
+  lastPosession?: Team
   referee: Referee
 
   field: ex.BoundingBox
@@ -170,6 +172,7 @@ export default class MatchScene extends ex.Scene {
     Array.from([
       ...this.home.players,
       ...this.away.players,
+      // this.home.players[2],
       this.home.net,
       this.away.net,
       this.home.goalie,
@@ -185,22 +188,39 @@ export default class MatchScene extends ex.Scene {
     )
 
     this.on('goal', this.onGoal.bind(this))
-    setTimeout(() => this.emit('start', {}))
+    setTimeout(() => {
+      this.start()
+      assets.snd_crowdA.play()
+    })
   }
 
   onGoal({ team }: { team: Team }) {
-    const posession = team === 'home' ? 'away' : 'home'
-    this.emit('reset', { posession })
+    assets.snd_crowdA.play()
+    assets.snd_crowdBHigh.play()
+    assets.snd_crowdBLow.play()
+    this.reset()
+  }
+
+  start() {
+    this.emit('start', {})
+  }
+
+  reset() {
+    this.emit('reset', {})
+
+    const posession = this.lastPosession
+      ? this.lastPosession === 'home'
+        ? -16
+        : 16
+      : 0
 
     this.ball.actions
       .moveTo(
         ex.vec(
-          Math.round(this.field.width / 2) +
-            38 +
-            (posession === 'home' ? -16 : 16),
+          Math.round(this.field.width / 2) + 38 + posession,
           Math.round(this.field.height / 2) + 8
         ),
-        300
+        500
       )
       .toPromise()
       .then(() => {

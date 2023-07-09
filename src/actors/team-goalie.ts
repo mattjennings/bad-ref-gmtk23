@@ -1,6 +1,6 @@
 import { assets } from 'src/assets'
-import { Team } from './team-player'
-import { BasePlayer, BasePlayerArgs } from './base-player'
+
+import { BasePlayer, BasePlayerArgs, Team } from './base-player'
 import { Engine, randomInRange } from 'excalibur'
 import { Net } from './net'
 import { Ball } from './ball'
@@ -19,6 +19,8 @@ export interface TeamGoalieArgs extends Omit<BasePlayerArgs, 'sprite'> {
 export class TeamGoalie extends BasePlayer {
   team: Team
   net: Net
+
+  isKicking = false
 
   power = 300
   friction = 0.1
@@ -44,12 +46,16 @@ export class TeamGoalie extends BasePlayer {
     this.net = this.scene[this.team].net
     this.pos = ex.vec(this.getLineX(), this.net.pos.y - this.height)
     this.on('collisionstart', this.onCollisionStart)
+
+    this.animations.Kick.events.on('loop', () => {
+      this.isKicking = false
+    })
   }
 
   onCollisionStart(ev: ex.CollisionStartEvent) {
     if (ev.other instanceof Ball) {
       const ball = ev.other as Ball
-      const self = ev.actor as TeamGoalie
+
       ball.vel.x *= -1
       ball.vel.y *= -1
     }
@@ -76,6 +82,10 @@ export class TeamGoalie extends BasePlayer {
   update(engine: Engine, delta: number): void {
     if (this.isPain) {
       this.vel = this.vel.scale(0.9)
+      return
+    }
+
+    if (this.isKicking) {
       return
     }
     const { top: netTop, bottom: netBottom } = this.getGoalBounds()
@@ -149,12 +159,17 @@ export class TeamGoalie extends BasePlayer {
     }
   }
   kickBall() {
-    this.scene.ball.kick(
+    const success = this.scene.ball.kick(
       ex.vec(
         this.team === 'home' ? this.power : -this.power,
         random.pickOne([-this.power, this.power])
       )
     )
+
+    if (success) {
+      this.setAnimation('Kick')
+      this.isKicking = true
+    }
   }
 
   shouldSlide() {

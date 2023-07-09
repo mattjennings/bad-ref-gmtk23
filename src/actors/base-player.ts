@@ -2,12 +2,16 @@ import { Animation, Engine } from 'excalibur'
 import { assets } from 'src/assets'
 import MatchScene from 'src/classes/MatchScene'
 import { AsepriteResource } from '@excaliburjs/plugin-aseprite'
+import { Ball } from './ball'
 
 const sprites = {
   shadow: assets.img_shadow.toSprite(),
 }
 
+export type Team = 'home' | 'away'
+
 export type BasePlayerArgs = ex.ActorArgs & {
+  team?: Team
   sprite: AsepriteResource
   debug?: boolean
 }
@@ -15,6 +19,7 @@ export type BasePlayerArgs = ex.ActorArgs & {
 export class BasePlayer extends ex.Actor {
   declare scene: MatchScene
 
+  team?: Team
   sprite: AsepriteResource
   animations: Record<string, Animation>
 
@@ -22,7 +27,7 @@ export class BasePlayer extends ex.Actor {
   isSprinting = false
   debug = false
 
-  constructor({ sprite, debug, ...args }: BasePlayerArgs) {
+  constructor({ sprite, debug, team, ...args }: BasePlayerArgs) {
     super({
       width: 16,
       height: 12,
@@ -30,6 +35,7 @@ export class BasePlayer extends ex.Actor {
       collider: ex.Shape.Box(16, 12, ex.vec(0.5, 1), ex.vec(0, 12)),
       ...args,
     })
+    this.team = team
     this.body.limitDegreeOfFreedom.push(ex.DegreeOfFreedom.Rotation)
     this.debug = debug ?? false
     this.sprite = sprite
@@ -49,6 +55,15 @@ export class BasePlayer extends ex.Actor {
       if (isPainCount > 3) {
         this.isPain = false
         isPainCount = 0
+      }
+    })
+
+    // set last posession
+    this.on('collisionstart', (ev) => {
+      if (ev.other instanceof Ball) {
+        if (this.team) {
+          this.scene.lastPosession = this.team
+        }
       }
     })
   }
