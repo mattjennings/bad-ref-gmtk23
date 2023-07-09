@@ -10,8 +10,22 @@ export type TeamPosition = 'defender' | 'midfielder' | 'forward'
 const random = new ex.Random()
 
 const sprites = {
-  home: [assets.ase_character1Blue, assets.ase_character2Blue],
-  away: [assets.ase_character1Red, assets.ase_character2Red],
+  home: [
+    assets.ase_character1Blue,
+    assets.ase_character2Blue,
+    assets.ase_character3Blue,
+    assets.ase_character4Blue,
+    assets.ase_character5Blue,
+    assets.ase_character6Blue,
+  ],
+  away: [
+    assets.ase_character1Red,
+    assets.ase_character2Red,
+    assets.ase_character3Red,
+    assets.ase_character4Red,
+    assets.ase_character5Red,
+    assets.ase_character6Red,
+  ],
 }
 
 const positionTemplates = {
