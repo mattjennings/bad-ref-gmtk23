@@ -101,6 +101,8 @@ export class IcecreamTruck extends ex.Actor {
               assets.snd_watchOut.play()
             })
         })
+      return true
     }
+    return false
   }
 }

@@ -91,6 +91,10 @@ export class BasePlayer extends ex.Actor {
     this.currentGraphic().flipHorizontal = flip
   }
 
+  isAnimation(name: string) {
+    return this.currentGraphic() === this.animations[name]
+  }
+
   moveTo(pos: ex.Vector, speed: number) {
     const angle = pos.sub(this.pos).toAngle()
 
