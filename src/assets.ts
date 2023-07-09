@@ -60,6 +60,9 @@ export const assets = {
   snd_bell: new ex.Sound('sfx/Bell1.mp3'),
   snd_watchOut: new ex.Sound('sfx/WatchOut.mp3'),
   snd_taunt: new ex.Sound('sfx/Taunt.mp3'),
+
+  sng_overtime1: new ex.Sound('music/Overtime1.mp3'),
+  sng_overtime2: new ex.Sound('music/Overtime2.mp3'),
 }
 
 class DevLoader extends ex.Loader {
