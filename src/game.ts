@@ -2,6 +2,7 @@ import './style.css'
 import './globals'
 import { loader } from './assets'
 import Level1 from './scenes/level1'
+import { DevTool } from '@excaliburjs/dev-tools'
 
 const game = new ex.Engine({
   canvasElementId: 'game',
@@ -18,6 +19,8 @@ game.start(loader).then(() => {
 
 ex.Physics.checkForFastBodies = true
 ex.Physics.useRealisticPhysics()
-// ex.Physics.acc = ex.vec(0, 300)
 
-globalThis.debug = true
+// const devtool = new DevTool(game)
+// game.showDebug(true)
+// @ts-ignore
+window.showDebug = game.showDebug.bind(game)
