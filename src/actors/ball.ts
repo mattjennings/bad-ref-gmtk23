@@ -1,7 +1,10 @@
 import { ActorArgs, Canvas, Engine } from 'excalibur'
 import { assets } from 'src/assets'
+import MatchScene from 'src/classes/MatchScene'
 
 export class Ball extends ex.Actor {
+  declare scene: MatchScene
+
   gravity = 0.1
   maxVelocity = 500
 
@@ -91,6 +94,22 @@ export class Ball extends ex.Actor {
     }
 
     this.updateAnimation()
+
+    const bounds = new ex.BoundingBox({
+      left: this.pos.x - this.width / 2,
+      right: this.pos.x + this.width / 2,
+      top: this.pos.y - this.height / 2,
+      bottom: this.pos.y + this.height / 2,
+    })
+
+    if (
+      bounds.left > this.scene.field.right ||
+      bounds.right < this.scene.field.left ||
+      bounds.top > this.scene.field.bottom ||
+      bounds.bottom < this.scene.field.top
+    ) {
+      this.scene.reset()
+    }
   }
 
   updateAnimation() {
