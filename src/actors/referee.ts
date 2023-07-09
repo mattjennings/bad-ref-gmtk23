@@ -20,6 +20,7 @@ export class Referee extends BasePlayer {
 
   isPunching = false
   isWhistling = false
+  isKicking = false
 
   constructor() {
     super({
@@ -44,6 +45,14 @@ export class Referee extends BasePlayer {
 
     this.animations.Whistle.events.on('loop', () => {
       this.isWhistling = false
+    })
+
+    this.animations.RedCard.events.on('loop', () => {
+      this.isWhistling = false
+    })
+
+    this.animations.Kick.events.on('loop', () => {
+      this.isKicking = false
     })
   }
 
@@ -85,14 +94,16 @@ export class Referee extends BasePlayer {
         isDownHeld ? this.moveSpeed : isUpHeld ? -this.moveSpeed : 0
       )
 
-      if (this.vel.x !== 0 || this.vel.y !== 0) {
-        this.setAnimation('Run')
+      if (!this.isKicking) {
+        if (this.vel.x !== 0 || this.vel.y !== 0) {
+          this.setAnimation('Run')
 
-        if (this.vel.x !== 0) {
-          this.currentGraphic().flipHorizontal = this.vel.x < 0
+          if (this.vel.x !== 0) {
+            this.currentGraphic().flipHorizontal = this.vel.x < 0
+          }
+        } else {
+          this.setAnimation('Idle')
         }
-      } else {
-        this.setAnimation('Idle')
       }
     }
   }
@@ -104,9 +115,14 @@ export class Referee extends BasePlayer {
   }
 
   kickBall() {
-    this.scene.ball.kick(
+    const successful = this.scene.ball.kick(
       this.scene.ball.pos.sub(this.pos).normalize().scale(500)
     )
+
+    if (successful) {
+      this.isKicking = true
+      this.setAnimation('Kick')
+    }
   }
 
   punch() {

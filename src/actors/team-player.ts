@@ -71,6 +71,7 @@ export class TeamPlayer extends BasePlayer {
   isResetting = true
   isSprinting = false
   isPain = false
+  isKicking = false
 
   constructor({ team, teamPosition, debug, ...args }: TeamPlayerArgs) {
     super({
@@ -133,11 +134,17 @@ export class TeamPlayer extends BasePlayer {
 
     this.scene.on('reset', () => {
       this.isResetting = true
+      this.isKicking = false
       this.actions.moveTo(this.getStartingPosition(), 300)
     })
 
     this.scene.on('start', () => {
       this.isResetting = false
+    })
+
+    this.animations.Kick.events.on('loop', () => {
+      this.isKicking = false
+      this.setAnimation('Idle')
     })
   }
 
@@ -146,7 +153,8 @@ export class TeamPlayer extends BasePlayer {
       this.vel = this.vel.scale(0.9)
       return
     }
-    if (!this.isResetting) {
+
+    if (!this.isKicking && !this.isResetting) {
       // move towards ball
       const ball = this.scene.ball
       const ballDistance = this.pos.distance(ball.pos)
@@ -263,13 +271,16 @@ export class TeamPlayer extends BasePlayer {
     }
 
     // animation
-    if (this.vel.x !== 0) {
-      this.setAnimation('Run')
-      this.currentGraphic().flipHorizontal = this.vel.x < 0
-    } else {
-      this.setAnimation('Idle')
+    if (!this.isKicking) {
+      if (this.vel.x !== 0) {
+        this.setAnimation('Run')
+        this.currentGraphic().flipHorizontal = this.vel.x < 0
+      } else {
+        this.setAnimation('Idle')
 
-      this.currentGraphic().flipHorizontal = this.scene.ball.pos.x < this.pos.x
+        this.currentGraphic().flipHorizontal =
+          this.scene.ball.pos.x < this.pos.x
+      }
     }
   }
 
@@ -306,10 +317,6 @@ export class TeamPlayer extends BasePlayer {
   }
 
   kickBall(direction: ex.Vector, power = this.power) {
-    // kickBall() gets called every frame, so setting a 10% chance of kicking
-    // actually leads to some decent results
-    const success = true // Math.random() > 0.9
-
     const magnitude = (vec: ex.Vector) =>
       Math.sqrt(Math.pow(vec.x, 2) + Math.pow(vec.y, 2))
 
@@ -318,18 +325,25 @@ export class TeamPlayer extends BasePlayer {
       return
     }
 
-    if (success) {
+    if (!this.isKicking) {
       const angle = direction.sub(this.scene.ball.pos).toAngle()
 
       // kick towards net with some random accuracy
-      this.scene.ball.kick(
+      const successful = this.scene.ball.kick(
         ex.vec(power * Math.cos(angle), power * Math.sin(angle))
       )
 
-      // if defender, stop sprinting after kicking so they dont burn stamina
-      // which would give an advantage to the attacker
-      if (this.teamPosition === 'defender') {
-        this.isSprinting = false
+      if (successful) {
+        this.currentGraphic().flipHorizontal = direction.x < 0 ? true : false
+        this.isKicking = true
+        this.setAnimation('Kick')
+        this.vel = ex.vec(0, 0)
+
+        // if defender, stop sprinting after kicking so they dont burn stamina
+        // which would give an advantage to the attacker
+        if (this.teamPosition === 'defender') {
+          this.isSprinting = false
+        }
       }
     }
   }

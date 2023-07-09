@@ -172,6 +172,7 @@ export default class MatchScene extends ex.Scene {
     Array.from([
       ...this.home.players,
       ...this.away.players,
+      // this.home.players[2],
       this.home.net,
       this.away.net,
       this.home.goalie,

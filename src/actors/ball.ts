@@ -50,6 +50,7 @@ export class Ball extends ex.Actor {
 
       _engine.input.pointers.on('down', (ev) => {
         this.pos = ev.worldPos
+        this.vel = ex.vec(0, 0)
         console.log('moved to', this.pos)
       })
     }
@@ -67,7 +68,9 @@ export class Ball extends ex.Actor {
 
       assets.snd_cleanImpact.play()
       this.vel = this.vel.add(vel)
+      return true
     }
+    return false
   }
 
   update(engine: Engine, delta: number): void {
