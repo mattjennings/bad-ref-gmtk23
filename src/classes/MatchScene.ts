@@ -216,15 +216,13 @@ export default class MatchScene extends ex.Scene {
     const intro = assets.sng_overtime2
     const game = assets.sng_overtime1
 
-    if (song === 'intro' && this.song !== intro) {
+    if (song === 'intro' && !intro.isPlaying()) {
       this.song?.stop()
       this.song = intro
-      this.song.loop = true
       intro.play()
-    } else if (song === 'game' && this.song !== game) {
+    } else if (song === 'game' && !game.isPlaying()) {
       this.song?.stop()
       this.song = game
-      this.song.loop = true
       game.play()
     }
   }
@@ -303,6 +301,10 @@ export default class MatchScene extends ex.Scene {
   }
 
   onPreUpdate(_engine: Engine, _delta: number): void {
+    if (this.song && !this.song.isPlaying()) {
+      this.song.play()
+    }
+
     // ysort all actors
     const sorted = [...this.entities].sort((a, b) => {
       if (a instanceof Actor && b instanceof Actor) {
