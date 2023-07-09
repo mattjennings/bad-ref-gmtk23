@@ -45,6 +45,7 @@ export class Referee extends BasePlayer {
 
     this.animations.Whistle.events.on('loop', () => {
       this.isWhistling = false
+      this.isPunching = false
     })
 
     this.animations.RedCard.events.on('loop', () => {
@@ -115,32 +116,36 @@ export class Referee extends BasePlayer {
   }
 
   kickBall() {
-    const successful = this.scene.ball.kick(
-      this.scene.ball.pos.sub(this.pos).normalize().scale(500)
-    )
+    if (!this.isWhistling) {
+      const successful = this.scene.ball.kick(
+        this.scene.ball.pos.sub(this.pos).normalize().scale(500)
+      )
 
-    if (successful) {
-      this.isKicking = true
-      this.setAnimation('Kick')
+      if (successful) {
+        this.isKicking = true
+        this.setAnimation('Kick')
+      }
     }
   }
 
   punch() {
-    this.isPunching = true
-    this.setAnimation('Punch')
-    this.vel = ex.vec(0, 0)
+    if (!this.isWhistling) {
+      this.isPunching = true
+      this.setAnimation('Punch')
+      this.vel = ex.vec(0, 0)
 
-    const [player] = this.scene.entities.filter(
-      (entity) =>
-        entity !== this &&
-        entity instanceof BasePlayer &&
-        entity.pos.distance(this.pos) < 20
-    ) as BasePlayer[]
+      const [player] = this.scene.entities.filter(
+        (entity) =>
+          entity !== this &&
+          entity instanceof BasePlayer &&
+          entity.pos.distance(this.pos) < 20
+      ) as BasePlayer[]
 
-    if (player) {
-      player.hit(player.pos.sub(this.pos).normalize())
-    } else {
-      assets.snd_dashA.play()
+      if (player) {
+        player.hit(player.pos.sub(this.pos).normalize())
+      } else {
+        assets.snd_dashA.play()
+      }
     }
   }
 

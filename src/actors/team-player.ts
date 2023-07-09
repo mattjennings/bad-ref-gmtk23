@@ -414,7 +414,7 @@ export class TeamPlayer extends BasePlayer {
 
     if (distance > 1) {
       if (refereeDistance < 10) {
-        speed *= 0.4
+        speed *= 0.2
       }
       super.moveTo(pos, speed)
     } else {
@@ -422,6 +422,10 @@ export class TeamPlayer extends BasePlayer {
     }
   }
 
+  hit(direction: Vector): void {
+    super.hit(direction)
+    this.isKicking = false
+  }
   trip() {
     // this.isPain = true
     // this.isSprinting = false
