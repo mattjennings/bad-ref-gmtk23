@@ -24,6 +24,7 @@ export class BasePlayer extends ex.Actor {
   animations: Record<string, Animation>
 
   isPain = false
+  painFrames = 5
   isSprinting = false
   debug = false
 
@@ -52,7 +53,7 @@ export class BasePlayer extends ex.Actor {
     this.animations.Pain.events.on('loop', (a) => {
       isPainCount++
 
-      if (isPainCount > 3) {
+      if (isPainCount > this.painFrames) {
         this.isPain = false
         isPainCount = 0
       }

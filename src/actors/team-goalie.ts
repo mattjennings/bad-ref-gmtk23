@@ -1,7 +1,7 @@
 import { assets } from 'src/assets'
 
 import { BasePlayer, BasePlayerArgs, Team } from './base-player'
-import { Engine, randomInRange } from 'excalibur'
+import { Actor, Engine, randomInRange } from 'excalibur'
 import { Net } from './net'
 import { Ball } from './ball'
 
@@ -21,7 +21,10 @@ export class TeamGoalie extends BasePlayer {
   net: Net
 
   isKicking = false
+  isDistracted = false
+  distractedBy: Actor | undefined
 
+  painFrames = 2
   power = 300
   friction = 0.1
   slideDuration = 400
@@ -39,6 +42,7 @@ export class TeamGoalie extends BasePlayer {
 
     this.animations.BlockUp = this.sprite.getAnimation('BlockUp')!
     this.animations.BlockDown = this.sprite.getAnimation('BlockDown')!
+    this.animations.HeartEyes = this.sprite.getAnimation('HeartEyes')!
   }
 
   onInitialize(_engine: Engine): void {
@@ -88,6 +92,24 @@ export class TeamGoalie extends BasePlayer {
     if (this.isKicking) {
       return
     }
+
+    if (this.isDistracted && this.distractedBy) {
+      const distance = this.pos.distance(this.distractedBy.pos)
+
+      if (distance > 20) {
+        this.moveTo(this.distractedBy.pos, 100)
+      } else {
+        this.vel = ex.vec(0, 0)
+      }
+
+      if (this.vel.x !== 0 || this.vel.y !== 0) {
+        this.setAnimation('Run')
+      } else {
+        this.setAnimation('HeartEyes')
+      }
+      return
+    }
+
     const { top: netTop, bottom: netBottom } = this.getGoalBounds()
 
     const goalieTop = this.pos.y
@@ -158,6 +180,7 @@ export class TeamGoalie extends BasePlayer {
       bottom: this.net.pos.y,
     }
   }
+
   kickBall() {
     const success = this.scene.ball.kick(
       ex.vec(
@@ -201,5 +224,28 @@ export class TeamGoalie extends BasePlayer {
       this.setAnimation(direction === 'up' ? 'BlockUp' : 'BlockDown')
       this.vel.y = direction === 'up' ? -this.slideSpeed : this.slideSpeed
     }
+  }
+
+  distract(actor: Actor, duration: number) {
+    this.isDistracted = true
+    this.isKicking = false
+    this.isPain = false
+    this._slideTime = 0
+    this.distractedBy = actor
+    actor.once('kill', (ev: ex.KillEvent) => {
+      if (actor === ev.other) {
+        this.isDistracted = false
+        this.distractedBy = undefined
+      }
+    })
+    this.actions
+      .delay(duration)
+      .toPromise()
+      .then(() => {
+        if (actor === this.distractedBy) {
+          this.distractedBy = undefined
+          this.isDistracted = false
+        }
+      })
   }
 }

@@ -16,7 +16,7 @@ const controls = {
 
 export class Referee extends BasePlayer {
   directionQueue: DirectionQueue
-  moveSpeed = 125
+  moveSpeed = 130
 
   isPunching = false
   isWhistling = false
@@ -76,6 +76,8 @@ export class Referee extends BasePlayer {
 
     if (engine.input.keyboard.wasPressed(controls.context)) {
       this.punch()
+
+      // this.scene.home.goalie.distract(this, 5000)
     }
 
     if (engine.input.keyboard.wasPressed(controls.whistle)) {
