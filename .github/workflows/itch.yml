@@ -8,7 +8,7 @@ on:
 
 env:
   ITCH_USERNAME: bluelemming
-  ITCH_GAME_ID: test
+  ITCH_GAME_ID: bad-ref
 jobs:
   deploy:
     name: Upload to Itch

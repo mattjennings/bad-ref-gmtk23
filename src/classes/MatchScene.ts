@@ -198,7 +198,6 @@ export default class MatchScene extends ex.Scene {
     Array.from([
       ...this.home.players,
       ...this.away.players,
-      // this.home.players[2],
       this.home.net,
       this.away.net,
       this.home.goalie,
@@ -212,7 +211,7 @@ export default class MatchScene extends ex.Scene {
     engine.add(new Scoreboard())
     engine.add(
       new MessageBox(
-        'You are a referee. Team Blue paid you to help them win.\nDo whatever it takes, first to 3 goals wins.\n\nPress Enter to start the game.'
+        'You are a referee. Help Team\nBlue get 3 goals for the win.\nThey paid you good money...\n\nPress Enter to start the game.'
       )
     )
 
@@ -250,19 +249,20 @@ export default class MatchScene extends ex.Scene {
 
     if (this.home.score >= SCORE_TO_WIN) {
       this.playSong('intro')
-      let suspicionMessage = `Team Red didn't suspect a thing.`
+      let suspicionMessage = `Team Red didn't suspect a\nthing.`
 
-      if (this.referee.suspicion > 30) {
-        suspicionMessage = `Team Red was a little suspicious...`
-      } else if (this.referee.suspicion > 50) {
-        suspicionMessage = `Team Red is outraged, but you told them\nto deal with it.`
+      this.referee.suspicion = 0
+      if (this.referee.suspicion > 50) {
+        suspicionMessage = `Team Red is outraged, but you\ntold them to deal with it.`
+      } else if (this.referee.suspicion > 30) {
+        suspicionMessage = `Team Red was a little\nsuspicious...`
       }
 
       this.gameHasStarted = false
       this.gameOver = true
       this.engine.add(
         new MessageBox(
-          `Team Blue wins! ${suspicionMessage}\n\nPress Enter to play again.`
+          `Team Blue wins!\n${suspicionMessage}\n\nPress Enter to play again.`
         )
       )
     } else if (this.away.score >= SCORE_TO_WIN) {
@@ -271,7 +271,7 @@ export default class MatchScene extends ex.Scene {
       this.gameOver = true
       this.engine.add(
         new MessageBox(
-          'Despite your antics, Team Blue lost.\n\nPress Enter to play again.'
+          'Despite your antics, Team Blue\nlost.\n\n\nPress Enter to play again.'
         )
       )
     }
